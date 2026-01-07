@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HL7 Results Generator</title>
+    <title>HL7 Results Generator - Lightning Step Compliant</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; }
@@ -32,48 +32,22 @@
         .content { padding: 3rem; }
         .results-section { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 3rem; text-align: center; }
         
-        .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; max-width: 800px; margin: 2rem auto; }
-        .module-card { padding: 2rem; border: 2px solid; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s; }
-        .module-card:hover { transform: translateY(-2px); }
-        
-        .orange-card { background: #fff7ed; border-color: #fed7aa; }
-        .purple-card { background: #faf5ff; border-color: #e9d5ff; }
-        .teal-card { background: #f0fdfa; border-color: #99f6e4; }
-        .emerald-card { background: #ecfdf5; border-color: #a7f3d0; }
-        .gray-card { background: #f9fafb; border-color: #d1d5db; }
-        
         .info-card { background: #eff6ff; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
         .info-card h4 { color: #1e40af; font-weight: 600; margin-bottom: 1rem; font-size: 1.125rem; }
-        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-        .info-item { font-size: 0.875rem; }
-        
-        .test-card { background: #fffbeb; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
-        .test-card h4 { color: #92400e; font-weight: 600; margin-bottom: 1rem; font-size: 1.125rem; }
         
         .result-display { background: #111827; color: #4ade80; font-family: monospace; padding: 1.5rem; border-radius: 8px; 
                          overflow-x: auto; max-height: 400px; white-space: pre-wrap; font-size: 0.875rem; margin: 1rem 0; }
         
-        .hidden { display: none; }
+        .compliance-badge { background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        
         .text-center { text-align: center; }
-        .mb-2 { margin-bottom: 0.5rem; }
         .mb-4 { margin-bottom: 1rem; }
         .mb-8 { margin-bottom: 2rem; }
-        .mt-4 { margin-top: 1rem; }
-        .flex { display: flex; }
-        .justify-center { justify-content: center; }
-        .items-center { align-items: center; }
-        .gap-2 { gap: 0.5rem; }
         
         select, input { padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
         select { width: 100%; margin-bottom: 1rem; }
         
-        .summary { background: #eff6ff; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; }
-        .summary h4 { color: #1e40af; margin-bottom: 1rem; }
-        .summary p { margin-bottom: 0.5rem; font-size: 0.875rem; color: #1d4ed8; }
-        
         @media (max-width: 768px) {
-            .module-grid { grid-template-columns: 1fr; }
-            .info-grid { grid-template-columns: 1fr; }
             .nav { flex-direction: column; }
             .content { padding: 1.5rem; }
             .results-section { padding: 1.5rem; }
@@ -111,38 +85,18 @@
                 // Generate EST datetime
                 function generateESTDateTime() {
                     const now = new Date();
+                    const estOffset = -5;
                     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                    const est = new Date(utc + (-5 * 3600000));
+                    const est = new Date(utc + (estOffset * 3600000));
                     
-                    return est.getFullYear().toString() +
-                        String(est.getMonth() + 1).padStart(2, '0') +
-                        String(est.getDate()).padStart(2, '0') +
-                        String(est.getHours()).padStart(2, '0') +
-                        String(est.getMinutes()).padStart(2, '0') +
-                        String(est.getSeconds()).padStart(2, '0');
-                }
-
-                // Generate random demographics
-                function generateRandomDemographics(originalName) {
-                    const states = ['CA', 'NY', 'TX', 'FL', 'WA', 'OR'];
-                    const cities = ['Springfield', 'Franklin', 'Georgetown', 'Madison'];
-                    const streets = ['Main St', 'Oak Ave', 'Pine Rd', 'Cedar Ln'];
+                    const year = est.getFullYear();
+                    const month = String(est.getMonth() + 1).padStart(2, '0');
+                    const day = String(est.getDate()).padStart(2, '0');
+                    const hours = String(est.getHours()).padStart(2, '0');
+                    const minutes = String(est.getMinutes()).padStart(2, '0');
+                    const seconds = String(est.getSeconds()).padStart(2, '0');
                     
-                    const birthYear = Math.floor(Math.random() * (2005 - 1950) + 1950);
-                    const birthMonth = Math.floor(Math.random() * 12) + 1;
-                    const birthDay = Math.floor(Math.random() * 28) + 1;
-                    
-                    return {
-                        mrn: 'RD' + (Math.floor(Math.random() * 90000) + 10000),
-                        lastName: originalName.split(' ')[1] || 'Smith',
-                        firstName: originalName.split(' ')[0] || 'John',
-                        birthDate: birthYear + String(birthMonth).padStart(2, '0') + String(birthDay).padStart(2, '0'),
-                        gender: ['M', 'F', 'U'][Math.floor(Math.random() * 3)],
-                        address1: Math.floor(Math.random() * 9999) + 1 + ' ' + streets[Math.floor(Math.random() * streets.length)],
-                        city: cities[Math.floor(Math.random() * cities.length)],
-                        state: states[Math.floor(Math.random() * states.length)],
-                        zip: String(Math.floor(Math.random() * 90000) + 10000)
-                    };
+                    return year + month + day + hours + minutes + seconds;
                 }
 
                 // Generate random tests
@@ -195,7 +149,7 @@
                     return selectedTests;
                 }
 
-                // Parse HL7 order - COMPLETE VERSION
+                // Parse HL7 order
                 function parseHL7Order(hl7Content) {
                     try {
                         let lines = hl7Content.split(/\r?\n/).filter(line => line.trim());
@@ -232,7 +186,7 @@
                             zip: '00000',
                             phoneHome: '(000) 000-0000',
                             phoneBusiness: '(000) 000-0000',
-                            race: 'Unknown',
+                            race: 'White',
                             maritalStatus: 'U',
                             ssn: 'N/A',
                             accountNumber: 'N/A'
@@ -261,7 +215,7 @@
                                     zip: addressParts[4] || '00000',
                                     phoneHome: phoneField || '(000) 000-0000',
                                     phoneBusiness: businessPhoneField || '(000) 000-0000',
-                                    race: fields[10] || 'Unknown',
+                                    race: 'White',
                                     maritalStatus: fields[16] || 'U',
                                     ssn: fields[19] || 'N/A',
                                     accountNumber: fields[18] || 'N/A'
@@ -270,122 +224,62 @@
                         }
 
                         let orderInfo = {
-                            orderNumber: 'TEST' + Math.floor(Math.random() * 1000),
-                            sendingApp: 'TestLab',
-                            sendingFacility: 'TestLab',
-                            receivingApp: 'LightningStep',
-                            receivingFacility: 'LightningStep',
+                            orderNumber: 'UNKNOWN',
+                            sendingApp: 'LightningStep',
+                            sendingFacility: '73929332',
+                            receivingApp: 'ClinicalLabs',
+                            receivingFacility: 'LABLIS',
                             orderDateTime: generateESTDateTime(),
-                            controlId: 'CTRL' + Math.floor(Math.random() * 1000),
+                            controlId: 'UNKNOWN',
                             messageType: 'ORM^O01',
                             processingId: 'P',
                             hl7Version: '2.3.1',
-                            sequenceNumber: 'N/A',
                             physicianNPI: 'Unknown',
                             physicianFirstName: 'Unknown',
-                            physicianLastName: 'Physician',
-                            physicianId: 'N/A',
-                            orderingProvider: 'N/A',
-                            orderControl: 'NW',
-                            placerOrderNumber: 'N/A',
-                            fillerOrderNumber: 'N/A',
-                            orderStatus: 'N/A',
-                            transactionDateTime: 'N/A',
-                            enteredBy: 'N/A'
+                            physicianLastName: 'Unknown'
                         };
 
                         if (mshSegment) {
                             const fields = mshSegment.split('|');
                             orderInfo = {
                                 ...orderInfo,
-                                sendingApp: fields[3] || 'TestLab',
-                                sendingFacility: fields[4] || 'TestLab',
-                                receivingApp: fields[5] || 'LightningStep',
-                                receivingFacility: fields[6] || 'LightningStep',
+                                sendingApp: fields[3] || 'LightningStep',
+                                sendingFacility: fields[4] || '73929332',
+                                receivingApp: fields[5] || 'ClinicalLabs',
+                                receivingFacility: fields[6] || 'LABLIS',
                                 orderDateTime: fields[7] || generateESTDateTime(),
                                 messageType: fields[9] || 'ORM^O01',
-                                controlId: fields[10] || 'CTRL' + Math.floor(Math.random() * 1000),
+                                controlId: fields[10] || 'UNKNOWN',
                                 processingId: fields[11] || 'P',
-                                hl7Version: fields[12] || '2.3.1',
-                                sequenceNumber: fields[13] || 'N/A'
+                                hl7Version: fields[12] || '2.3.1'
                             };
                         }
 
                         if (orcSegments.length > 0) {
                             const orcFields = orcSegments[0].split('|');
                             orderInfo.orderControl = orcFields[1] || 'NW';
-                            orderInfo.placerOrderNumber = orcFields[2] || 'N/A';
-                            orderInfo.fillerOrderNumber = orcFields[3] || 'N/A';
-                            orderInfo.orderNumber = orcFields[2] || orcFields[3] || orderInfo.orderNumber;
+                            orderInfo.placerOrderNumber = orcFields[2] || 'UNKNOWN';
+                            orderInfo.fillerOrderNumber = orcFields[3] || 'UNKNOWN';
+                            orderInfo.orderNumber = orcFields[2] || orcFields[3] || 'UNKNOWN';
                             orderInfo.orderStatus = orcFields[5] || 'N/A';
                             orderInfo.transactionDateTime = orcFields[9] || 'N/A';
                             orderInfo.enteredBy = orcFields[10] || 'N/A';
                             orderInfo.orderingProvider = orcFields[12] || 'N/A';
                         }
 
-                        // Parse Patient Visit (PV1) - COMPLETE
                         let visitInfo = {
                             patientClass: 'O',
                             assignedLocation: '^^^&',
-                            admissionType: 'N/A',
-                            attendingDoctor: 'N/A',
-                            visitNumber: 'N/A',
-                            dischargeDisposition: 'N/A'
+                            visitNumber: Math.floor(Math.random() * 999) + 1
                         };
                         
                         if (pv1Segment) {
                             const fields = pv1Segment.split('|');
-                            console.log('PV1 segment found:', pv1Segment);
-                            console.log('PV1 fields:', fields);
-                            
                             visitInfo = {
                                 patientClass: fields[2] || 'O',
                                 assignedLocation: fields[3] || '^^^&',
-                                admissionType: fields[4] || 'N/A',
-                                preadmitNumber: fields[5] || 'N/A',
-                                priorPatientLocation: fields[6] || 'N/A',
-                                attendingDoctor: fields[7] || 'N/A',
-                                referringDoctor: fields[8] || 'N/A',
-                                consultingDoctor: fields[9] || 'N/A',
-                                hospitalService: fields[10] || 'N/A',
-                                temporaryLocation: fields[11] || 'N/A',
-                                preadmitTestIndicator: fields[12] || 'N/A',
-                                readmissionIndicator: fields[13] || 'N/A',
-                                admitSource: fields[14] || 'N/A',
-                                ambulatoryStatus: fields[15] || 'N/A',
-                                vipIndicator: fields[16] || 'N/A',
-                                admittingDoctor: fields[17] || 'N/A',
-                                patientType: fields[18] || 'N/A',
-                                visitNumber: fields[19] || 'N/A',
-                                financialClass: fields[20] || 'N/A',
-                                chargePriceIndicator: fields[21] || 'N/A',
-                                courtesyCode: fields[22] || 'N/A',
-                                creditRating: fields[23] || 'N/A',
-                                contractCode: fields[24] || 'N/A',
-                                contractEffectiveDate: fields[25] || 'N/A',
-                                contractAmount: fields[26] || 'N/A',
-                                contractPeriod: fields[27] || 'N/A',
-                                interestCode: fields[28] || 'N/A',
-                                transferToBadDebtCode: fields[29] || 'N/A',
-                                transferToBadDebtDate: fields[30] || 'N/A',
-                                badDebtAgencyCode: fields[31] || 'N/A',
-                                badDebtTransferAmount: fields[32] || 'N/A',
-                                badDebtRecoveryAmount: fields[33] || 'N/A',
-                                deleteAccountIndicator: fields[34] || 'N/A',
-                                deleteAccountDate: fields[35] || 'N/A',
-                                dischargeDisposition: fields[36] || 'N/A',
-                                dischargedToLocation: fields[37] || 'N/A',
-                                dietType: fields[38] || 'N/A',
-                                servicingFacility: fields[39] || 'N/A',
-                                bedStatus: fields[40] || 'N/A',
-                                accountStatus: fields[41] || 'N/A',
-                                pendingLocation: fields[42] || 'N/A',
-                                priorTemporaryLocation: fields[43] || 'N/A',
-                                admitDateTime: fields[44] || 'N/A',
-                                dischargeDateTime: fields[45] || 'N/A'
+                                visitNumber: fields[19] || Math.floor(Math.random() * 999) + 1
                             };
-                        } else {
-                            console.log('No PV1 segment found in HL7');
                         }
 
                         let insuranceInfo = {};
@@ -408,33 +302,33 @@
                             
                             if (index === 0 && physicianInfo) {
                                 orderInfo.physicianNPI = physicianParts[0] || 'Unknown';
+                                orderInfo.physicianLastName = physicianParts[1] || 'Unknown';
                                 orderInfo.physicianFirstName = physicianParts[2] || 'Unknown';
-                                orderInfo.physicianLastName = physicianParts[1] || 'Physician';
-                                orderInfo.physicianId = physicianParts[0] || 'N/A';
                             }
                             
                             return {
                                 sequence: index + 1,
-                                code: testParts[0] || 'TEST' + (index + 1),
-                                name: testParts[1] || 'Lab Test ' + (index + 1),
+                                code: testParts[0] || 'UNKNOWN_CODE_' + (index + 1),
+                                name: testParts[1] || 'Unknown Test ' + (index + 1),
                                 priority: fields[5] || 'R',
                                 requestedDateTime: fields[6] || generateESTDateTime(),
                                 collectionDateTime: fields[7] || generateESTDateTime(),
                                 orderStatus: fields[25] || 'A',
                                 specimenSource: fields[15] || 'Unknown',
                                 orderingProvider: fields[16] || 'N/A',
-                                resultStatus: fields[25] || 'N/A',
-                                parentResult: fields[26] || 'N/A',
-                                results: [{
-                                    code: 'RESULT',
+                                results: testParts[1] ? [{
+                                    code: testParts[0] || 'RESULT',
                                     name: testParts[1] || 'Test Result',
-                                    value: (Math.random() * 100).toFixed(1),
-                                    unit: 'mg/dL',
-                                    range: '0-100',
-                                    status: 'N'
-                                }]
+                                    value: 'Pending',
+                                    unit: 'N/A',
+                                    range: 'N/A',
+                                    status: 'P'
+                                }] : generateRandomTests()[0].results
                             };
                         }) : generateRandomTests();
+
+                        console.log('Parsed HL7 - Order Number:', orderInfo.orderNumber);
+                        console.log('Parsed HL7 - Lab Tests:', labTests.map(t => t.code + ': ' + t.name));
 
                         return {
                             success: true,
@@ -458,36 +352,115 @@
                     const orderInfo = uploadedOrder.orderInfo;
                     const labTests = uploadedOrder.labTests;
                     const resultDateTime = generateESTDateTime();
+                    console.log('Generated datetime:', resultDateTime);
                     const controlId = Math.floor(Math.random() * 900000000000000000000) + 100000000000000000000;
                     const version = uploadedOrder.useV23 ? '2.3' : '2.3.1';
                     
                     let hl7Result = '';
                     
-                    hl7Result += 'MSH|^~\\&|' + (orderInfo.receivingFacility || 'TempsLab') + '|' + (orderInfo.sendingFacility || '73929332') + '||LightningStep|' + resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '\r\n';
-                    hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + patientInfo.lastName + '^' + patientInfo.firstName + '||' + patientInfo.birthDate + '|' + patientInfo.gender + '\r\n';
+                    // MSH segment
+                    hl7Result += 'MSH|^~\\&|LightningStep|' + (orderInfo.sendingFacility || '73929332') + 
+                                 '|ClinicalLabs|' + (orderInfo.receivingFacility || 'LABLIS') + '|' + 
+                                 resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '|||NE|NE\r\n';
                     
-                    // Generate PV1 with real visit information instead of hardcoded values
+                    // PID segment
+                    const raceCode = patientInfo.race === 'White' ? '2106-3^White^CDCREC' : 
+                                   patientInfo.race === 'Black' ? '2054-5^Black^CDCREC' :
+                                   patientInfo.race === 'Asian' ? '2028-9^Asian^CDCREC' :
+                                   patientInfo.race === 'Native American' ? '1002-5^American Indian^CDCREC' :
+                                   '2106-3^White^CDCREC';
+                    
+                    const ethnicityCode = Math.random() > 0.5 ? '2135-2^Hispanic or Latino' : '2186-5^Not Hispanic or Latino';
+                    const billType = uploadedOrder.insuranceInfo && Object.keys(uploadedOrder.insuranceInfo).length > 0 ? 'T' : 'P';
+                    
+                    hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + 
+                                 patientInfo.lastName + '^' + patientInfo.firstName + '^' + (patientInfo.middleName || '') + '||' + 
+                                 patientInfo.birthDate + '|' + patientInfo.gender + '||' + raceCode + '|' +
+                                 (patientInfo.address1 && patientInfo.address1 !== 'Unknown' ? patientInfo.address1 : '12345 Fake Address Rd.') + 
+                                 '^^' + (patientInfo.city && patientInfo.city !== 'Unknown' ? patientInfo.city : 'Spring') + '^' + 
+                                 (patientInfo.state && patientInfo.state !== 'XX' ? patientInfo.state : 'TX') + '^' + 
+                                 (patientInfo.zip && patientInfo.zip !== '00000' ? patientInfo.zip : '77778') + '||' + 
+                                 (patientInfo.phoneHome && patientInfo.phoneHome !== '(000) 000-0000' ? patientInfo.phoneHome : '(832) 454-4545') + '|' + 
+                                 (patientInfo.phoneBusiness && patientInfo.phoneBusiness !== '(000) 000-0000' ? patientInfo.phoneBusiness : '(832) 454-4545') + 
+                                 '||||' + patientInfo.mrn + '^^^' + billType + '|' +
+                                 (patientInfo.ssn && patientInfo.ssn !== 'N/A' ? patientInfo.ssn : '') + '|||' + ethnicityCode + '|\r\n';
+                    
+                    // PV1 segment
                     const visitInfo = uploadedOrder.visitInfo || {};
-                    hl7Result += 'PV1|1|' + (visitInfo.patientClass || 'O') + '|' + (visitInfo.assignedLocation || '^^^&') + 
-                                 '|' + (visitInfo.admissionType || '') + 
-                                 '|' + (visitInfo.preadmitNumber || '') + 
-                                 '|' + (visitInfo.priorPatientLocation || '') + 
-                                 '|' + (visitInfo.attendingDoctor || '') + 
-                                 '|' + (visitInfo.referringDoctor || '') + 
-                                 '|' + (visitInfo.consultingDoctor || '') + 
-                                 '|' + (visitInfo.hospitalService || '') + 
-                                 '|||||||||' + (visitInfo.visitNumber || '') + 
-                                 '|' + (visitInfo.financialClass || '') + '\r\n';
+                    const visitNumber = visitInfo.visitNumber || Math.floor(Math.random() * 999) + 1;
+                    hl7Result += 'PV1|1|' + (visitInfo.patientClass || 'O') + '|^^^&||||' + 
+                                 (orderInfo.physicianNPI || '1234567893') + '^' + 
+                                 (orderInfo.physicianLastName || 'Jaramillo') + '^' + 
+                                 (orderInfo.physicianFirstName || 'Francisco') + '|||||||||||||||' + 
+                                 visitNumber + '|||||||||||||||||||||||||' + 
+                                 resultDateTime + '|' + resultDateTime + '|\r\n';
+                    
+                    // Add insurance segments if available
+                    if (uploadedOrder.insuranceInfo && Object.keys(uploadedOrder.insuranceInfo).length > 0) {
+                        const insurance = uploadedOrder.insuranceInfo;
+                        hl7Result += 'GT1|1||' + patientInfo.lastName + '^' + patientInfo.firstName + '^||' +
+                                     (patientInfo.address1 && patientInfo.address1 !== 'Unknown' ? patientInfo.address1 : '12345 Fake Address Rd.') + 
+                                     '^^' + (patientInfo.city && patientInfo.city !== 'Unknown' ? patientInfo.city : 'Spring') + '^' + 
+                                     (patientInfo.state && patientInfo.state !== 'XX' ? patientInfo.state : 'TX') + '^' + 
+                                     (patientInfo.zip && patientInfo.zip !== '00000' ? patientInfo.zip : '77778') + '|' +
+                                     (patientInfo.phoneHome && patientInfo.phoneHome !== '(000) 000-0000' ? patientInfo.phoneHome : '(832) 454-4545') + 
+                                     '||' + patientInfo.birthDate + '|||01||||||||||||||||\r\n';
+                        
+                        hl7Result += 'IN1|1||' + (insurance.planId || '60254') + '|' + (insurance.companyName || 'Aetna') + '|^^^AK^|||' +
+                                     (insurance.groupNumber || '6849878945') + '||||||||' + patientInfo.lastName + '^' + patientInfo.firstName + '^|01|' +
+                                     patientInfo.birthDate + '|^^^AK^|||1|||||||||||||' + (insurance.policyNumber || '444444') + '|||||||||||T\r\n';
+                    }
+                    
+                    // Generate unique accession base
+                    const accessionBase = Math.floor(Math.random() * 900000) + 100000;
                     
                     for (let i = 0; i < labTests.length; i++) {
                         const test = labTests[i];
-                        const accessionNumber = resultDateTime.substring(0, 8) + '-' + String(test.sequence).padStart(2, '0');
-                        hl7Result += 'ORC|RE|' + orderInfo.orderNumber + '|' + accessionNumber + '||CM||||' + resultDateTime + '\r\n';
-                        hl7Result += 'OBR|' + test.sequence + '|' + orderInfo.orderNumber + '|' + accessionNumber + '|' + test.code + '^' + test.name + '|||||' + resultDateTime + '|' + resultDateTime + '\r\n';
+                        const accessionNumber = resultDateTime.substring(0, 8) + '-' + accessionBase + '-' + String(i + 1).padStart(2, '0');
                         
+                        // ORC segment - FIXED order control logic
+                        const isFromOriginalOrder = uploadedOrder.originalHL7 && 
+                                                   !uploadedOrder.orderInfo.orderNumber.startsWith('RL') && 
+                                                   !uploadedOrder.orderInfo.orderNumber.startsWith('ND') && 
+                                                   !uploadedOrder.orderInfo.orderNumber.startsWith('RD') && 
+                                                   !uploadedOrder.orderInfo.orderNumber.startsWith('R3');
+                        
+                        const orderControl = isFromOriginalOrder ? 'RE' : 'NW';
+                        const orderNumberToUse = orderControl === 'RE' ? uploadedOrder.orderInfo.orderNumber : orderInfo.orderNumber;
+                        
+                        console.log('Order Control Logic:');
+                        console.log('- Has original HL7:', !!uploadedOrder.originalHL7);
+                        console.log('- Order number:', uploadedOrder.orderInfo.orderNumber);
+                        console.log('- Starts with RL/ND/RD/R3:', uploadedOrder.orderInfo.orderNumber.startsWith('RL') || uploadedOrder.orderInfo.orderNumber.startsWith('ND') || uploadedOrder.orderInfo.orderNumber.startsWith('RD') || uploadedOrder.orderInfo.orderNumber.startsWith('R3'));
+                        console.log('- Is from original order:', isFromOriginalOrder);
+                        console.log('- Order control:', orderControl);
+                        console.log('- Order number used:', orderNumberToUse);
+                        
+                        hl7Result += 'ORC|' + orderControl + '|' + orderNumberToUse + '|' + accessionNumber + '||CM||||' + 
+                                     resultDateTime + '||' + (orderInfo.physicianNPI || '1234567893') + '^' + 
+                                     (orderInfo.physicianLastName || 'Jaramillo') + '^' + 
+                                     (orderInfo.physicianFirstName || 'Francisco') + '^^^^^U|^^^&\r\n';
+                        
+                        // OBR segment
+                        hl7Result += 'OBR|' + (i + 1) + '|' + orderNumberToUse + '|' + accessionNumber + '|' + 
+                                     test.code + '^' + test.name + '|' + (test.priority || 'R') + '||' + resultDateTime + '|' + resultDateTime + 
+                                     '|||^^^|||||BLD&Blood^^Blood Collection Tube (BCT)^^R&Refrigerated|' + 
+                                     (orderInfo.physicianNPI || '1234567893') + '^' + 
+                                     (orderInfo.physicianLastName || 'Jaramillo') + '^' + 
+                                     (orderInfo.physicianFirstName || 'Francisco') + '||||||||F|||||||1^^^^^' + 
+                                     (test.priority || 'R') + '^NONFASTING||\r\n';
+                        
+                        // OBX segments
                         for (let j = 0; j < test.results.length; j++) {
                             const result = test.results[j];
-                            hl7Result += 'OBX|' + (j + 1) + '|NM|' + result.code + '^' + result.name + '|' + (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + result.status + '|||F|||' + resultDateTime + '\r\n';
+                            const dataType = (result.code === 'COLOR' || result.code === 'CLARITY') ? 'ST' : 'NM';
+                            hl7Result += 'OBX|' + (j + 1) + '|' + dataType + '|' + result.code + '^' + result.name + '^L|' + 
+                                         (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + 
+                                         result.status + '|||F|||' + resultDateTime + '|LAB^Laboratory^L\r\n';
+                        }
+                        
+                        if (test.notes) {
+                            hl7Result += 'NTE|1|R|' + test.notes + '\r\n';
                         }
                     }
                     
@@ -539,14 +512,27 @@
                     if (!uploadedOrder) return;
                     const result = generateResultHL7();
                     setGeneratedResult(result);
-                    alert('✅ HL7 ORU^R01 result generated successfully!');
+                    alert('✅ Lightning Step compliant HL7 ORU^R01 result generated!');
                 }
 
                 function handleDownload() {
                     if (!generatedResult || !uploadedOrder) return;
                     
                     const resultDateTime = generateESTDateTime();
-                    const fileName = resultDateTime + '_' + uploadedOrder.patientInfo.mrn + '_ORU_R01.hl7';
+                    const mrn = uploadedOrder.patientInfo.mrn || 'UNKNOWN';
+                    
+                    let orderNumberForFilename;
+                    
+                    if (selectedPatient && selectedPatient.orderInfo && selectedPatient.orderInfo.orderNumber) {
+                        orderNumberForFilename = selectedPatient.orderInfo.orderNumber;
+                        console.log('Using original patient order number for filename:', orderNumberForFilename);
+                    } else {
+                        orderNumberForFilename = uploadedOrder.orderInfo.orderNumber || 'UNKNOWN';
+                        console.log('Using current order number for filename:', orderNumberForFilename);
+                    }
+                    
+                    const fileName = resultDateTime + '_' + mrn + '_' + orderNumberForFilename + '_ORU_R01.hl7';
+                    console.log('Generated filename:', fileName);
                     
                     const blob = new Blob([generatedResult], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);
@@ -559,381 +545,64 @@
                     URL.revokeObjectURL(url);
                 }
 
-                function generateForKnownPatient() {
+                function generateTestData(orderPrefix, version) {
                     if (!selectedPatient) return;
                     
+                    console.log('=== Starting generation for ' + orderPrefix + ' ===');
                     const randomTests = generateRandomTests();
                     const currentDateTime = generateESTDateTime();
-                    const randomOrderNumber = 'RL' + Math.floor(Math.random() * 900000 + 100000);
+                    console.log('Generated currentDateTime:', currentDateTime);
+                    const randomOrderNumber = orderPrefix + Math.floor(Math.random() * 900000 + 100000);
+                    console.log('Generated order number:', randomOrderNumber);
                     
-                    // Generate random physician for each test
                     const physicianFirstNames = ['Francisco', 'Maria', 'Carlos', 'Ana', 'Diego', 'Sofia', 'Miguel', 'Isabella', 'Juan', 'Valentina'];
                     const physicianLastNames = ['Jaramillo', 'Rodriguez', 'Martinez', 'Garcia', 'Lopez', 'Gonzalez', 'Perez', 'Sanchez', 'Ramirez', 'Torres'];
                     
                     const randomPhysicianFirst = physicianFirstNames[Math.floor(Math.random() * physicianFirstNames.length)];
                     const randomPhysicianLast = physicianLastNames[Math.floor(Math.random() * physicianLastNames.length)];
                     const randomNPI = '12345678' + Math.floor(Math.random() * 10);
+                    
+                    console.log('Generated random physician:', randomPhysicianFirst, randomPhysicianLast, 'NPI:', randomNPI);
                     
                     const resultData = {
                         success: true,
                         patientInfo: selectedPatient.patientInfo,
                         orderInfo: {
                             orderNumber: randomOrderNumber,
-                            sendingApp: selectedPatient.orderInfo?.sendingApp || 'LightningStep',
-                            sendingFacility: selectedPatient.orderInfo?.sendingFacility || '73929332',
-                            receivingApp: selectedPatient.orderInfo?.receivingApp || 'TempsLab', 
-                            receivingFacility: selectedPatient.orderInfo?.receivingFacility || 'LightningStep',
+                            sendingApp: 'LightningStep',
+                            sendingFacility: '73929332',
+                            receivingApp: 'ClinicalLabs',
+                            receivingFacility: 'LABLIS',
                             orderDateTime: currentDateTime,
                             controlId: 'CTRL' + Math.floor(Math.random() * 999999999),
                             messageType: 'ORM^O01',
                             processingId: 'P',
-                            hl7Version: '2.3.1',
+                            hl7Version: version,
                             physicianNPI: randomNPI,
                             physicianFirstName: randomPhysicianFirst,
                             physicianLastName: randomPhysicianLast
                         },
-                        visitInfo: selectedPatient.visitInfo || {},
+                        visitInfo: selectedPatient.visitInfo || { patientClass: 'O' },
                         insuranceInfo: selectedPatient.insuranceInfo || {},
-                        labTests: randomTests
-                    };
-                    
-                    // Set the data and generate result immediately
-                    setUploadedOrder(resultData);
-                    
-                    // Generate HL7 result automatically
-                    setTimeout(function() {
-                        const patientInfo = resultData.patientInfo;
-                        const orderInfo = resultData.orderInfo;
-                        const labTests = resultData.labTests;
-                        const resultDateTime = generateESTDateTime();
-                        const controlId = Math.floor(Math.random() * 900000000000000000000) + 100000000000000000000;
-                        const version = resultData.useV23 ? '2.3' : '2.3.1';
-                        
-                        let hl7Result = '';
-                        
-                        hl7Result += 'MSH|^~\\&|' + (orderInfo.receivingFacility || 'TempsLab') + '|' + (orderInfo.sendingFacility || '73929332') + '||LightningStep|' + resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '\r\n';
-                        hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + patientInfo.lastName + '^' + patientInfo.firstName + '||' + patientInfo.birthDate + '|' + patientInfo.gender + '\r\n';
-                        
-                        const visitInfo = resultData.visitInfo || {};
-                        hl7Result += 'PV1|1|' + (visitInfo.patientClass || 'O') + '|' + (visitInfo.assignedLocation || '^^^&') + 
-                                     '|' + (visitInfo.admissionType || '') + 
-                                     '|' + (visitInfo.preadmitNumber || '') + 
-                                     '|' + (visitInfo.priorPatientLocation || '') + 
-                                     '|' + (visitInfo.attendingDoctor || '') + 
-                                     '|' + (visitInfo.referringDoctor || '') + 
-                                     '|' + (visitInfo.consultingDoctor || '') + 
-                                     '|' + (visitInfo.hospitalService || '') + 
-                                     '|||||||||' + (visitInfo.visitNumber || '') + 
-                                     '|' + (visitInfo.financialClass || '') + '\r\n';
-                        
-                        for (let i = 0; i < labTests.length; i++) {
-                            const test = labTests[i];
-                            const accessionNumber = resultDateTime.substring(0, 8) + '-' + String(test.sequence).padStart(2, '0');
-                            hl7Result += 'ORC|RE|' + orderInfo.orderNumber + '|' + accessionNumber + '||CM||||' + resultDateTime + '\r\n';
-                            hl7Result += 'OBR|' + test.sequence + '|' + orderInfo.orderNumber + '|' + accessionNumber + '|' + test.code + '^' + test.name + '|||||' + resultDateTime + '|' + resultDateTime + '\r\n';
-                            
-                            for (let j = 0; j < test.results.length; j++) {
-                                const result = test.results[j];
-                                hl7Result += 'OBX|' + (j + 1) + '|NM|' + result.code + '^' + result.name + '|' + (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + result.status + '|||F|||' + resultDateTime + '\r\n';
-                            }
-                        }
-                        
-                        setGeneratedResult(hl7Result);
-                        alert('✅ Random tests with random provider generated and HL7 result created!');
-                    }, 100);
-                }
-
-                function generateRandomNameDobOnly() {
-                    if (!selectedPatient) return;
-                    
-                    const randomTests = generateRandomTests();
-                    const currentDateTime = generateESTDateTime();
-                    const randomOrderNumber = 'ND' + Math.floor(Math.random() * 900000 + 100000);
-                    
-                    const states = ['CA', 'NY', 'TX', 'FL', 'WA', 'OR', 'AZ', 'NV', 'CO', 'UT'];
-                    const cities = ['Springfield', 'Franklin', 'Georgetown', 'Madison', 'Riverside', 'Fairview', 'Salem', 'Bristol'];
-                    const streets = ['Main St', 'Oak Ave', 'Pine Rd', 'Cedar Ln', 'Maple Dr', 'Elm St', 'First St', 'Second Ave'];
-                    
-                    // Generate random physician
-                    const physicianFirstNames = ['Francisco', 'Maria', 'Carlos', 'Ana', 'Diego', 'Sofia', 'Miguel', 'Isabella', 'Juan', 'Valentina'];
-                    const physicianLastNames = ['Jaramillo', 'Rodriguez', 'Martinez', 'Garcia', 'Lopez', 'Gonzalez', 'Perez', 'Sanchez', 'Ramirez', 'Torres'];
-                    
-                    const randomPhysicianFirst = physicianFirstNames[Math.floor(Math.random() * physicianFirstNames.length)];
-                    const randomPhysicianLast = physicianLastNames[Math.floor(Math.random() * physicianLastNames.length)];
-                    const randomNPI = '12345678' + Math.floor(Math.random() * 10);
-                    
-                    const randomPatientInfo = {
-                        firstName: selectedPatient.patientInfo.firstName,
-                        lastName: selectedPatient.patientInfo.lastName,
-                        birthDate: selectedPatient.patientInfo.birthDate,
-                        mrn: 'ND' + (Math.floor(Math.random() * 90000) + 10000),
-                        middleName: '',
-                        gender: ['M', 'F'][Math.floor(Math.random() * 2)],
-                        address1: Math.floor(Math.random() * 9999) + 1 + ' ' + streets[Math.floor(Math.random() * streets.length)],
-                        city: cities[Math.floor(Math.random() * cities.length)],
-                        state: states[Math.floor(Math.random() * states.length)],
-                        zip: String(Math.floor(Math.random() * 90000) + 10000),
-                        phoneHome: '(' + Math.floor(Math.random() * 900 + 100) + ') ' + 
-                                  Math.floor(Math.random() * 900 + 100) + '-' + 
-                                  Math.floor(Math.random() * 9000 + 1000),
-                        phoneBusiness: '(' + Math.floor(Math.random() * 900 + 100) + ') ' + 
-                                      Math.floor(Math.random() * 900 + 100) + '-' + 
-                                      Math.floor(Math.random() * 9000 + 1000),
-                        race: ['White', 'Hispanic', 'Black', 'Asian', 'Native American', 'Other'][Math.floor(Math.random() * 6)],
-                        maritalStatus: ['M', 'S', 'D', 'W'][Math.floor(Math.random() * 4)],
-                        ssn: 'XXX-XX-' + Math.floor(Math.random() * 9000 + 1000),
-                        accountNumber: 'ACC' + Math.floor(Math.random() * 900000 + 100000)
-                    };
-                    
-                    const resultData = {
-                        success: true,
-                        patientInfo: randomPatientInfo,
-                        orderInfo: {
-                            orderNumber: randomOrderNumber,
-                            sendingApp: 'LightningStep',
-                            sendingFacility: '73929332',
-                            receivingApp: 'LightningStep',
-                            receivingFacility: 'LightningStep',
-                            orderDateTime: currentDateTime,
-                            controlId: 'CTRL' + Math.floor(Math.random() * 999999999),
-                            messageType: 'ORM^O01',
-                            processingId: 'P',
-                            hl7Version: '2.3.1',
-                            physicianNPI: randomNPI,
-                            physicianFirstName: randomPhysicianFirst,
-                            physicianLastName: randomPhysicianLast
-                        },
-                        visitInfo: { patientClass: 'O' },
-                        insuranceInfo: {},
-                        labTests: randomTests
-                    };
-                    
-                    // Set the data and generate result immediately
-                    setUploadedOrder(resultData);
-                    
-                    // Generate HL7 result automatically
-                    setTimeout(function() {
-                        const patientInfo = resultData.patientInfo;
-                        const orderInfo = resultData.orderInfo;
-                        const labTests = resultData.labTests;
-                        const resultDateTime = generateESTDateTime();
-                        const controlId = Math.floor(Math.random() * 900000000000000000000) + 100000000000000000000;
-                        const version = resultData.useV23 ? '2.3' : '2.3.1';
-                        
-                        let hl7Result = '';
-                        
-                        hl7Result += 'MSH|^~\\&|' + (orderInfo.receivingFacility || 'TempsLab') + '|' + (orderInfo.sendingFacility || '73929332') + '||LightningStep|' + resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '\r\n';
-                        hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + patientInfo.lastName + '^' + patientInfo.firstName + '||' + patientInfo.birthDate + '|' + patientInfo.gender + '\r\n';
-                        
-                        const visitInfo = resultData.visitInfo || {};
-                        hl7Result += 'PV1|1|' + (visitInfo.patientClass || 'O') + '|' + (visitInfo.assignedLocation || '^^^&') + 
-                                     '|' + (visitInfo.admissionType || '') + 
-                                     '|' + (visitInfo.preadmitNumber || '') + 
-                                     '|' + (visitInfo.priorPatientLocation || '') + 
-                                     '|' + (visitInfo.attendingDoctor || '') + 
-                                     '|' + (visitInfo.referringDoctor || '') + 
-                                     '|' + (visitInfo.consultingDoctor || '') + 
-                                     '|' + (visitInfo.hospitalService || '') + 
-                                     '|||||||||' + (visitInfo.visitNumber || '') + 
-                                     '|' + (visitInfo.financialClass || '') + '\r\n';
-                        
-                        for (let i = 0; i < labTests.length; i++) {
-                            const test = labTests[i];
-                            const accessionNumber = resultDateTime.substring(0, 8) + '-' + String(test.sequence).padStart(2, '0');
-                            hl7Result += 'ORC|RE|' + orderInfo.orderNumber + '|' + accessionNumber + '||CM||||' + resultDateTime + '\r\n';
-                            hl7Result += 'OBR|' + test.sequence + '|' + orderInfo.orderNumber + '|' + accessionNumber + '|' + test.code + '^' + test.name + '|||||' + resultDateTime + '|' + resultDateTime + '\r\n';
-                            
-                            for (let j = 0; j < test.results.length; j++) {
-                                const result = test.results[j];
-                                hl7Result += 'OBX|' + (j + 1) + '|NM|' + result.code + '^' + result.name + '|' + (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + result.status + '|||F|||' + resultDateTime + '\r\n';
-                            }
-                        }
-                        
-                        setGeneratedResult(hl7Result);
-                        alert('✅ Name+DOB with random provider generated and HL7 result created!');
-                    }, 100);
-                }
-
-                function generateRandomDemo() {
-                    if (!selectedPatient) return;
-                    
-                    const randomTests = generateRandomTests();
-                    const currentDateTime = generateESTDateTime();
-                    const randomOrderNumber = 'RD' + Math.floor(Math.random() * 900000 + 100000);
-                    
-                    const originalName = selectedPatient.patientInfo.firstName + ' ' + selectedPatient.patientInfo.lastName;
-                    const randomDemo = generateRandomDemographics(originalName);
-                    
-                    // Generate random physician
-                    const physicianFirstNames = ['Francisco', 'Maria', 'Carlos', 'Ana', 'Diego', 'Sofia', 'Miguel', 'Isabella', 'Juan', 'Valentina'];
-                    const physicianLastNames = ['Jaramillo', 'Rodriguez', 'Martinez', 'Garcia', 'Lopez', 'Gonzalez', 'Perez', 'Sanchez', 'Ramirez', 'Torres'];
-                    
-                    const randomPhysicianFirst = physicianFirstNames[Math.floor(Math.random() * physicianFirstNames.length)];
-                    const randomPhysicianLast = physicianLastNames[Math.floor(Math.random() * physicianLastNames.length)];
-                    const randomNPI = '12345678' + Math.floor(Math.random() * 10);
-                    
-                    const resultData = {
-                        success: true,
-                        patientInfo: randomDemo,
-                        orderInfo: {
-                            orderNumber: randomOrderNumber,
-                            sendingApp: 'LightningStep',
-                            sendingFacility: '73929332',
-                            receivingApp: 'LightningStep',
-                            receivingFacility: 'LightningStep',
-                            orderDateTime: currentDateTime,
-                            controlId: 'CTRL' + Math.floor(Math.random() * 999999999),
-                            messageType: 'ORM^O01',
-                            processingId: 'P',
-                            hl7Version: '2.3.1',
-                            physicianNPI: randomNPI,
-                            physicianFirstName: randomPhysicianFirst,
-                            physicianLastName: randomPhysicianLast
-                        },
-                        visitInfo: { patientClass: 'O' },
-                        insuranceInfo: {},
-                        labTests: randomTests
-                    };
-                    
-                    // Set the data and generate result immediately
-                    setUploadedOrder(resultData);
-                    
-                    // Generate HL7 result automatically
-                    setTimeout(function() {
-                        const patientInfo = resultData.patientInfo;
-                        const orderInfo = resultData.orderInfo;
-                        const labTests = resultData.labTests;
-                        const resultDateTime = generateESTDateTime();
-                        const controlId = Math.floor(Math.random() * 900000000000000000000) + 100000000000000000000;
-                        const version = resultData.useV23 ? '2.3' : '2.3.1';
-                        
-                        let hl7Result = '';
-                        
-                        hl7Result += 'MSH|^~\\&|' + (orderInfo.receivingFacility || 'TempsLab') + '|' + (orderInfo.sendingFacility || '73929332') + '||LightningStep|' + resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '\r\n';
-                        hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + patientInfo.lastName + '^' + patientInfo.firstName + '||' + patientInfo.birthDate + '|' + patientInfo.gender + '\r\n';
-                        
-                        const visitInfo = resultData.visitInfo || {};
-                        hl7Result += 'PV1|1|' + (visitInfo.patientClass || 'O') + '|' + (visitInfo.assignedLocation || '^^^&') + 
-                                     '|' + (visitInfo.admissionType || '') + 
-                                     '|' + (visitInfo.preadmitNumber || '') + 
-                                     '|' + (visitInfo.priorPatientLocation || '') + 
-                                     '|' + (visitInfo.attendingDoctor || '') + 
-                                     '|' + (visitInfo.referringDoctor || '') + 
-                                     '|' + (visitInfo.consultingDoctor || '') + 
-                                     '|' + (visitInfo.hospitalService || '') + 
-                                     '|||||||||' + (visitInfo.visitNumber || '') + 
-                                     '|' + (visitInfo.financialClass || '') + '\r\n';
-                        
-                        for (let i = 0; i < labTests.length; i++) {
-                            const test = labTests[i];
-                            const accessionNumber = resultDateTime.substring(0, 8) + '-' + String(test.sequence).padStart(2, '0');
-                            hl7Result += 'ORC|RE|' + orderInfo.orderNumber + '|' + accessionNumber + '||CM||||' + resultDateTime + '\r\n';
-                            hl7Result += 'OBR|' + test.sequence + '|' + orderInfo.orderNumber + '|' + accessionNumber + '|' + test.code + '^' + test.name + '|||||' + resultDateTime + '|' + resultDateTime + '\r\n';
-                            
-                            for (let j = 0; j < test.results.length; j++) {
-                                const result = test.results[j];
-                                hl7Result += 'OBX|' + (j + 1) + '|NM|' + result.code + '^' + result.name + '|' + (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + result.status + '|||F|||' + resultDateTime + '\r\n';
-                            }
-                        }
-                        
-                        setGeneratedResult(hl7Result);
-                        alert('✅ Random demographics v2.3.1 with random provider generated and HL7 result created!');
-                    }, 100);
-                }
-
-                function generateRandomDemoV23() {
-                    if (!selectedPatient) return;
-                    
-                    const randomTests = generateRandomTests();
-                    const currentDateTime = generateESTDateTime();
-                    const randomOrderNumber = 'R3' + Math.floor(Math.random() * 900000 + 100000);
-                    
-                    const originalName = selectedPatient.patientInfo.firstName + ' ' + selectedPatient.patientInfo.lastName;
-                    const randomDemo = generateRandomDemographics(originalName);
-                    
-                    // Generate random physician
-                    const physicianFirstNames = ['Francisco', 'Maria', 'Carlos', 'Ana', 'Diego', 'Sofia', 'Miguel', 'Isabella', 'Juan', 'Valentina'];
-                    const physicianLastNames = ['Jaramillo', 'Rodriguez', 'Martinez', 'Garcia', 'Lopez', 'Gonzalez', 'Perez', 'Sanchez', 'Ramirez', 'Torres'];
-                    
-                    const randomPhysicianFirst = physicianFirstNames[Math.floor(Math.random() * physicianFirstNames.length)];
-                    const randomPhysicianLast = physicianLastNames[Math.floor(Math.random() * physicianLastNames.length)];
-                    const randomNPI = '12345678' + Math.floor(Math.random() * 10);
-                    
-                    const resultData = {
-                        success: true,
-                        patientInfo: randomDemo,
-                        orderInfo: {
-                            orderNumber: randomOrderNumber,
-                            sendingApp: 'LightningStep',
-                            sendingFacility: '73929332',
-                            receivingApp: 'LightningStep',
-                            receivingFacility: 'LightningStep',
-                            orderDateTime: currentDateTime,
-                            controlId: 'CTRL' + Math.floor(Math.random() * 999999999),
-                            messageType: 'ORM^O01',
-                            processingId: 'P',
-                            hl7Version: '2.3',
-                            physicianNPI: randomNPI,
-                            physicianFirstName: randomPhysicianFirst,
-                            physicianLastName: randomPhysicianLast
-                        },
-                        visitInfo: { patientClass: 'O' },
-                        insuranceInfo: {},
                         labTests: randomTests,
-                        useV23: true
+                        useV23: version === '2.3'
                     };
                     
-                    // Set the data and generate result immediately
                     setUploadedOrder(resultData);
                     
-                    // Generate HL7 result automatically
-                    setTimeout(function() {
-                        const patientInfo = resultData.patientInfo;
-                        const orderInfo = resultData.orderInfo;
-                        const labTests = resultData.labTests;
-                        const resultDateTime = generateESTDateTime();
-                        const controlId = Math.floor(Math.random() * 900000000000000000000) + 100000000000000000000;
-                        const version = resultData.useV23 ? '2.3' : '2.3.1';
-                        
-                        let hl7Result = '';
-                        
-                        hl7Result += 'MSH|^~\\&|' + (orderInfo.receivingFacility || 'TempsLab') + '|' + (orderInfo.sendingFacility || '73929332') + '||LightningStep|' + resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '\r\n';
-                        hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + patientInfo.lastName + '^' + patientInfo.firstName + '||' + patientInfo.birthDate + '|' + patientInfo.gender + '\r\n';
-                        
-                        const visitInfo = resultData.visitInfo || {};
-                        hl7Result += 'PV1|1|' + (visitInfo.patientClass || 'O') + '|' + (visitInfo.assignedLocation || '^^^&') + 
-                                     '|' + (visitInfo.admissionType || '') + 
-                                     '|' + (visitInfo.preadmitNumber || '') + 
-                                     '|' + (visitInfo.priorPatientLocation || '') + 
-                                     '|' + (visitInfo.attendingDoctor || '') + 
-                                     '|' + (visitInfo.referringDoctor || '') + 
-                                     '|' + (visitInfo.consultingDoctor || '') + 
-                                     '|' + (visitInfo.hospitalService || '') + 
-                                     '|||||||||' + (visitInfo.visitNumber || '') + 
-                                     '|' + (visitInfo.financialClass || '') + '\r\n';
-                        
-                        for (let i = 0; i < labTests.length; i++) {
-                            const test = labTests[i];
-                            const accessionNumber = resultDateTime.substring(0, 8) + '-' + String(test.sequence).padStart(2, '0');
-                            hl7Result += 'ORC|RE|' + orderInfo.orderNumber + '|' + accessionNumber + '||CM||||' + resultDateTime + '\r\n';
-                            hl7Result += 'OBR|' + test.sequence + '|' + orderInfo.orderNumber + '|' + accessionNumber + '|' + test.code + '^' + test.name + '|||||' + resultDateTime + '|' + resultDateTime + '\r\n';
-                            
-                            for (let j = 0; j < test.results.length; j++) {
-                                const result = test.results[j];
-                                hl7Result += 'OBX|' + (j + 1) + '|NM|' + result.code + '^' + result.name + '|' + (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + result.status + '|||F|||' + resultDateTime + '\r\n';
-                            }
-                        }
-                        
-                        setGeneratedResult(hl7Result);
-                        alert('✅ Random demographics v2.3 with random provider generated and HL7 result created!');
-                    }, 100);
+                    // Don't auto-generate HL7 - let user control when to generate it
+                    alert('✅ ' + orderPrefix + ' order information generated! Use "Generate HL7 Result" button to create the actual HL7.');
+                    console.log('=== Order information created - ready for manual HL7 generation ===');
                 }
 
                 // Render functions
                 function renderHeader() {
                     return React.createElement('div', { className: 'header' },
                         React.createElement('h1', null, 'HL7 Results Generator'),
-                        React.createElement('p', null, 'Lightning Step - 6 Functions ORU^R01'),
+                        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem' } },
+                            React.createElement('p', null, 'Lightning Step - 6 Functions ORU^R01'),
+                            React.createElement('span', { className: 'compliance-badge' }, 'LS COMPLIANT')
+                        ),
                         React.createElement('div', { className: 'nav' },
                             React.createElement('button', {
                                 className: 'btn-orange',
@@ -984,378 +653,26 @@
 
                 function renderHome() {
                     return React.createElement('div', { className: 'text-center' },
-                        React.createElement('h2', { className: 'mb-8' }, 'Select a Module'),
+                        React.createElement('h2', { className: 'mb-8' }, 'Lightning Step Compliant HL7 Generator'),
+                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
+                            React.createElement('h4', { style: { color: '#166534' } }, '✅ Lightning Step Compliance Features'),
+                            React.createElement('ul', { style: { textAlign: 'left', marginLeft: '2rem', marginTop: '1rem' } },
+                                React.createElement('li', null, '🏥 MSH segment with proper LightningStep format'),
+                                React.createElement('li', null, '👤 Complete PID with race/ethnicity coding (CDCREC)'),
+                                React.createElement('li', null, '🏥 Enhanced PV1 with physician information'),
+                                React.createElement('li', null, '💳 IN1/GT1 insurance and guarantor segments'),
+                                React.createElement('li', null, '🧪 Compliant OBR/OBX with specimen source'),
+                                React.createElement('li', null, '📝 Optional NTE notes segments'),
+                                React.createElement('li', null, '🔧 Enhanced date/time debugging for R3/RD issues')
+                            )
+                        ),
                         React.createElement('p', { className: 'mb-4', style: { color: '#6b7280' } }, 
                             'Upload an HL7 file to enable all modules'
                         )
                     );
                 }
 
-                function renderUploadedOrder() {
-                    if (!uploadedOrder) return null;
-                    
-                    return React.createElement('div', null,
-                        React.createElement('h2', { className: 'mb-4' }, 'Loaded Information - Complete HL7 Details'),
-                        
-                        // Patient Information - COMPLETE
-                        React.createElement('div', { className: 'info-card', style: { background: '#eff6ff' } },
-                            React.createElement('h4', { style: { color: '#1e40af' } }, '👤 Patient Information (PID)'),
-                            React.createElement('div', { className: 'info-grid' },
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Full Name: '),
-                                    (uploadedOrder.patientInfo.firstName || 'Unknown') + ' ' + 
-                                    (uploadedOrder.patientInfo.middleName ? uploadedOrder.patientInfo.middleName + ' ' : '') +
-                                    (uploadedOrder.patientInfo.lastName || 'Unknown')
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'MRN/Patient ID: '),
-                                    uploadedOrder.patientInfo.mrn || 'Unknown'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Birth Date: '),
-                                    uploadedOrder.patientInfo.birthDate || '19900101'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Gender: '),
-                                    uploadedOrder.patientInfo.gender || 'U'
-                                ),
-                                React.createElement('div', { className: 'info-item', style: { gridColumn: 'span 2' } },
-                                    React.createElement('strong', null, 'Complete Address: '),
-                                    (uploadedOrder.patientInfo.address1 && uploadedOrder.patientInfo.address1 !== 'Unknown' ? 
-                                        (uploadedOrder.patientInfo.address1 || 'N/A') + ', ' + 
-                                        (uploadedOrder.patientInfo.city || 'N/A') + ', ' + 
-                                        (uploadedOrder.patientInfo.state || 'N/A') + ' ' + 
-                                        (uploadedOrder.patientInfo.zip || 'N/A')
-                                        : 'Address information not available')
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Home Phone: '),
-                                    uploadedOrder.patientInfo.phoneHome && uploadedOrder.patientInfo.phoneHome !== '(000) 000-0000' ? 
-                                        uploadedOrder.patientInfo.phoneHome : 'Not provided'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Business Phone: '),
-                                    uploadedOrder.patientInfo.phoneBusiness && uploadedOrder.patientInfo.phoneBusiness !== '(000) 000-0000' ? 
-                                        uploadedOrder.patientInfo.phoneBusiness : 'Not provided'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Race/Ethnicity: '),
-                                    uploadedOrder.patientInfo.race && uploadedOrder.patientInfo.race !== 'Unknown' ? 
-                                        uploadedOrder.patientInfo.race : 'Not specified'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Marital Status: '),
-                                    uploadedOrder.patientInfo.maritalStatus || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'SSN: '),
-                                    uploadedOrder.patientInfo.ssn || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Account Number: '),
-                                    uploadedOrder.patientInfo.accountNumber || 'N/A'
-                                )
-                            )
-                        ),
-
-                        // Message Header - COMPLETE  
-                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
-                            React.createElement('h4', { style: { color: '#166534' } }, '📨 Message Header (MSH)'),
-                            React.createElement('div', { className: 'info-grid' },
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Message Type: '),
-                                    uploadedOrder.orderInfo.messageType || 'ORM^O01'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'HL7 Version: '),
-                                    uploadedOrder.orderInfo.hl7Version || '2.3.1'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Sending Application: '),
-                                    uploadedOrder.orderInfo.sendingApp || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Sending Facility: '),
-                                    uploadedOrder.orderInfo.sendingFacility || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Receiving Application: '),
-                                    uploadedOrder.orderInfo.receivingApp || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Receiving Facility: '),
-                                    uploadedOrder.orderInfo.receivingFacility || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Date/Time of Message: '),
-                                    uploadedOrder.orderInfo.orderDateTime || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Message Control ID: '),
-                                    uploadedOrder.orderInfo.controlId || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Processing ID: '),
-                                    uploadedOrder.orderInfo.processingId || 'P'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Sequence Number: '),
-                                    uploadedOrder.orderInfo.sequenceNumber || 'N/A'
-                                )
-                            )
-                        ),
-
-                        // Order Control - COMPLETE
-                        React.createElement('div', { className: 'info-card', style: { background: '#fef3c7' } },
-                            React.createElement('h4', { style: { color: '#92400e' } }, '📋 Order Control (ORC)'),
-                            React.createElement('div', { style: { background: '#fef9c3', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' } },
-                                React.createElement('strong', null, '🆔 Order Number: ' + (uploadedOrder.orderInfo.orderNumber || 'N/A')),
-                                (uploadedOrder.orderInfo.orderNumber && 
-                                 (uploadedOrder.orderInfo.orderNumber.startsWith('RL') || 
-                                  uploadedOrder.orderInfo.orderNumber.startsWith('RD') || 
-                                  uploadedOrder.orderInfo.orderNumber.startsWith('R3') ||
-                                  uploadedOrder.orderInfo.orderNumber.startsWith('ND'))) &&
-                                React.createElement('div', { style: { fontSize: '0.875rem', color: '#92400e', marginTop: '0.5rem', fontStyle: 'italic' } },
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('RL') && '↳ Random Tests Order',
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('ND') && '↳ Name + DOB Only Order',
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('RD') && '↳ Random Demographics v2.3.1 Order', 
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('R3') && '↳ Random Demographics v2.3 Order'
-                                )
-                            ),
-                            React.createElement('div', { className: 'info-grid' },
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Order Control: '),
-                                    uploadedOrder.orderInfo.orderControl || 'NW'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Placer Order Number: '),
-                                    uploadedOrder.orderInfo.placerOrderNumber || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Filler Order Number: '),
-                                    uploadedOrder.orderInfo.fillerOrderNumber || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Order Status: '),
-                                    uploadedOrder.orderInfo.orderStatus || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Transaction Date/Time: '),
-                                    uploadedOrder.orderInfo.transactionDateTime || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Entered By: '),
-                                    uploadedOrder.orderInfo.enteredBy || 'N/A'
-                                )
-                            )
-                        ),
-
-                        // Physician Information - COMPLETE
-                        React.createElement('div', { className: 'info-card', style: { background: '#faf5ff' } },
-                            React.createElement('h4', { style: { color: '#6b21a8' } }, '👨‍⚕️ Ordering Physician Information'),
-                            React.createElement('div', { className: 'info-grid' },
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'NPI Number: '),
-                                    uploadedOrder.orderInfo.physicianNPI || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Full Name: '),
-                                    'Dr. ' + (uploadedOrder.orderInfo.physicianFirstName || 'Unknown') + ' ' + (uploadedOrder.orderInfo.physicianLastName || 'Physician')
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Physician ID: '),
-                                    uploadedOrder.orderInfo.physicianId || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Ordering Provider: '),
-                                    uploadedOrder.orderInfo.orderingProvider || 'N/A'
-                                )
-                            )
-                        ),
-
-                        // Patient Visit - COMPLETE
-                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
-                            React.createElement('h4', { style: { color: '#166534' } }, '🏥 Patient Visit (PV1)'),
-                            React.createElement('div', { className: 'info-grid' },
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Patient Class: '),
-                                    uploadedOrder.visitInfo?.patientClass || 'O (Outpatient)'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Assigned Location: '),
-                                    uploadedOrder.visitInfo?.assignedLocation && uploadedOrder.visitInfo?.assignedLocation !== '^^^&' ? 
-                                        uploadedOrder.visitInfo?.assignedLocation : 'Not specified'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Admission Type: '),
-                                    uploadedOrder.visitInfo?.admissionType || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Attending Doctor: '),
-                                    uploadedOrder.visitInfo?.attendingDoctor || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Visit Number: '),
-                                    uploadedOrder.visitInfo?.visitNumber || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Patient Type: '),
-                                    uploadedOrder.visitInfo?.patientType || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Financial Class: '),
-                                    uploadedOrder.visitInfo?.financialClass || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Hospital Service: '),
-                                    uploadedOrder.visitInfo?.hospitalService || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Admit Date/Time: '),
-                                    uploadedOrder.visitInfo?.admitDateTime || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Discharge Date/Time: '),
-                                    uploadedOrder.visitInfo?.dischargeDateTime || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Discharge Disposition: '),
-                                    uploadedOrder.visitInfo?.dischargeDisposition || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Account Status: '),
-                                    uploadedOrder.visitInfo?.accountStatus || 'N/A'
-                                )
-                            )
-                        ),
-
-                        // Laboratory Tests - COMPLETE with all details
-                        React.createElement('div', { className: 'test-card' },
-                            React.createElement('h4', null, '🧪 Laboratory Order Requests (OBR) - ' + uploadedOrder.labTests.length + ' test(s)'),
-                            uploadedOrder.labTests.map(function(test, index) {
-                                return React.createElement('div', { 
-                                    key: index, 
-                                    style: { 
-                                        background: 'white', 
-                                        padding: '1.5rem', 
-                                        borderRadius: '8px', 
-                                        marginBottom: '1rem',
-                                        border: '1px solid #e5e7eb'
-                                    }
-                                },
-                                    React.createElement('h5', { style: { color: '#92400e', marginBottom: '1rem', borderBottom: '2px solid #fed7aa', paddingBottom: '0.5rem' } },
-                                        '🧪 Test #' + test.sequence + ': ' + (test.name || 'Lab Test')
-                                    ),
-                                    React.createElement('div', { className: 'info-grid', style: { marginBottom: '1rem' } },
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Test Code: '),
-                                            test.code || 'N/A'
-                                        ),
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Test Name: '),
-                                            test.name || 'N/A'
-                                        ),
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Priority: '),
-                                            test.priority || 'R (Routine)'
-                                        ),
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Order Status: '),
-                                            test.orderStatus || 'A (Some, but not all results available)'
-                                        ),
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Requested Date/Time: '),
-                                            test.requestedDateTime || 'N/A'
-                                        ),
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Collection Date/Time: '),
-                                            test.collectionDateTime || 'N/A'
-                                        ),
-                                        React.createElement('div', { className: 'info-item', style: { gridColumn: 'span 2' } },
-                                            React.createElement('strong', null, 'Specimen Source: '),
-                                            test.specimenSource || 'N/A'
-                                        ),
-                                        React.createElement('div', { className: 'info-item', style: { gridColumn: 'span 2' } },
-                                            React.createElement('strong', null, 'Ordering Provider: '),
-                                            test.orderingProvider || 'N/A'
-                                        ),
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Result Status: '),
-                                            test.resultStatus || 'N/A'
-                                        ),
-                                        React.createElement('div', { className: 'info-item' },
-                                            React.createElement('strong', null, 'Parent Result: '),
-                                            test.parentResult || 'N/A'
-                                        )
-                                    ),
-                                    React.createElement('div', { style: { marginTop: '1rem', background: '#fef3c7', padding: '1rem', borderRadius: '6px' } },
-                                        React.createElement('strong', null, '📊 Expected Results (' + test.results.length + '):'),
-                                        React.createElement('ul', { style: { marginLeft: '1rem', marginTop: '0.5rem', fontSize: '0.875rem' } },
-                                            test.results.map(function(result, idx) {
-                                                return React.createElement('li', { key: idx, style: { listStyle: 'disc', marginBottom: '0.25rem', color: '#78350f' } },
-                                                    React.createElement('strong', null, result.name + ' (' + result.code + ')'),
-                                                    ' - Unit: ' + result.unit + ', Range: ' + result.range + ', Status: ' + result.status
-                                                );
-                                            })
-                                        )
-                                    )
-                                );
-                            })
-                        ),
-
-                        // Insurance Information (if available)
-                        (uploadedOrder.insuranceInfo && Object.keys(uploadedOrder.insuranceInfo).length > 0) && 
-                        React.createElement('div', { className: 'info-card', style: { background: '#ecfdf5' } },
-                            React.createElement('h4', { style: { color: '#166534' } }, '💳 Insurance Information (IN1)'),
-                            React.createElement('div', { className: 'info-grid' },
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Insurance Plan ID: '),
-                                    uploadedOrder.insuranceInfo.planId || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Insurance Company: '),
-                                    uploadedOrder.insuranceInfo.companyName || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Policy Number: '),
-                                    uploadedOrder.insuranceInfo.policyNumber || 'N/A'
-                                ),
-                                React.createElement('div', { className: 'info-item' },
-                                    React.createElement('strong', null, 'Group Number: '),
-                                    uploadedOrder.insuranceInfo.groupNumber || 'N/A'
-                                )
-                            )
-                        ),
-
-                        // Raw HL7 Preview
-                        uploadedOrder.originalHL7 && React.createElement('div', { 
-                            style: { 
-                                background: '#f9fafb', 
-                                padding: '2rem', 
-                                borderRadius: '12px', 
-                                marginBottom: '2rem' 
-                            }
-                        },
-                            React.createElement('h4', { className: 'mb-4' }, '📄 Original HL7 Message (First 1000 characters)'),
-                            React.createElement('div', { 
-                                className: 'result-display',
-                                style: { fontSize: '0.75rem', maxHeight: '10rem', whiteSpace: 'pre-wrap' }
-                            },
-                                uploadedOrder.originalHL7.substring(0, 1000) + (uploadedOrder.originalHL7.length > 1000 ? '\n\n... (truncated)' : '')
-                            )
-                        ),
-                        
-                        React.createElement('div', { className: 'text-center' },
-                            React.createElement('button', {
-                                className: 'btn-green',
-                                style: { padding: '1rem 2rem', fontSize: '1.125rem' },
-                                onClick: handleGenerateResult
-                            }, 'Generate HL7 ORU^R01 Result')
-                        )
-                    );
-                }
-
-                function renderPatientSelector(onGenerate, title) {
+                function renderPatientSelector(title, orderPrefix, version) {
                     return React.createElement('div', null,
                         React.createElement('h2', { className: 'mb-4' }, title),
                         React.createElement('div', { className: 'info-card' },
@@ -1383,8 +700,22 @@
                                 className: selectedPatient ? 'btn-green' : 'btn-gray',
                                 style: { width: '100%', padding: '1rem', marginTop: '1rem' },
                                 disabled: !selectedPatient,
-                                onClick: onGenerate
-                            }, 'Generate Results')
+                                onClick: function() { generateTestData(orderPrefix, version); }
+                            }, 'Generate Order Information'),
+                            
+                            // Add separate Generate HL7 button
+                            uploadedOrder && React.createElement('button', {
+                                className: 'btn-blue',
+                                style: { width: '100%', padding: '1rem', marginTop: '0.5rem' },
+                                onClick: function() {
+                                    console.log('=== Manual HL7 Generation Triggered ===');
+                                    const result = generateResultHL7();
+                                    console.log('Manual HL7 generated - Length:', result.length);
+                                    setGeneratedResult(result);
+                                    console.log('Manual HL7 result set - should update display');
+                                    alert('✅ HL7 result generated and updated!');
+                                }
+                            }, '🔄 Generate HL7 Result')
                         ),
                         
                         // Show generated information if uploadedOrder exists and it's from a random module
@@ -1466,6 +797,190 @@
                     );
                 }
 
+                function renderUploadedOrder() {
+                    if (!uploadedOrder) return null;
+                    
+                    return React.createElement('div', null,
+                        React.createElement('h2', { className: 'mb-4' }, 'Loaded Information - Complete HL7 Details'),
+                        
+                        // Patient Information - COMPLETE
+                        React.createElement('div', { className: 'info-card', style: { background: '#eff6ff' } },
+                            React.createElement('h4', { style: { color: '#1e40af' } }, '👤 Patient Information (PID)'),
+                            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' } },
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Full Name: '),
+                                    (uploadedOrder.patientInfo.firstName || 'Unknown') + ' ' + 
+                                    (uploadedOrder.patientInfo.middleName ? uploadedOrder.patientInfo.middleName + ' ' : '') +
+                                    (uploadedOrder.patientInfo.lastName || 'Unknown')
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'MRN/Patient ID: '),
+                                    uploadedOrder.patientInfo.mrn || 'Unknown'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Birth Date: '),
+                                    uploadedOrder.patientInfo.birthDate || '19900101'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Gender: '),
+                                    uploadedOrder.patientInfo.gender || 'U'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem', gridColumn: 'span 2' } },
+                                    React.createElement('strong', null, 'Complete Address: '),
+                                    (uploadedOrder.patientInfo.address1 && uploadedOrder.patientInfo.address1 !== 'Unknown' ? 
+                                        (uploadedOrder.patientInfo.address1 || 'N/A') + ', ' + 
+                                        (uploadedOrder.patientInfo.city || 'N/A') + ', ' + 
+                                        (uploadedOrder.patientInfo.state || 'N/A') + ' ' + 
+                                        (uploadedOrder.patientInfo.zip || 'N/A')
+                                        : 'Address information not available')
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Home Phone: '),
+                                    uploadedOrder.patientInfo.phoneHome && uploadedOrder.patientInfo.phoneHome !== '(000) 000-0000' ? 
+                                        uploadedOrder.patientInfo.phoneHome : 'Not provided'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Business Phone: '),
+                                    uploadedOrder.patientInfo.phoneBusiness && uploadedOrder.patientInfo.phoneBusiness !== '(000) 000-0000' ? 
+                                        uploadedOrder.patientInfo.phoneBusiness : 'Not provided'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Race/Ethnicity: '),
+                                    uploadedOrder.patientInfo.race && uploadedOrder.patientInfo.race !== 'Unknown' ? 
+                                        uploadedOrder.patientInfo.race : 'Not specified'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'SSN: '),
+                                    uploadedOrder.patientInfo.ssn || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Message Header - COMPLETE  
+                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
+                            React.createElement('h4', { style: { color: '#166534' } }, '📨 Message Header (MSH)'),
+                            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' } },
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Message Type: '),
+                                    uploadedOrder.orderInfo.messageType || 'ORM^O01'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'HL7 Version: '),
+                                    uploadedOrder.orderInfo.hl7Version || '2.3.1'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Sending Application: '),
+                                    uploadedOrder.orderInfo.sendingApp || 'N/A'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Sending Facility: '),
+                                    uploadedOrder.orderInfo.sendingFacility || 'N/A'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Receiving Application: '),
+                                    uploadedOrder.orderInfo.receivingApp || 'N/A'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Receiving Facility: '),
+                                    uploadedOrder.orderInfo.receivingFacility || 'N/A'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Date/Time: '),
+                                    uploadedOrder.orderInfo.orderDateTime || 'N/A'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Control ID: '),
+                                    uploadedOrder.orderInfo.controlId || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Order Control - COMPLETE
+                        React.createElement('div', { className: 'info-card', style: { background: '#fef3c7' } },
+                            React.createElement('h4', { style: { color: '#92400e' } }, '📋 Order Control (ORC)'),
+                            React.createElement('div', { style: { background: '#fef9c3', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' } },
+                                React.createElement('strong', null, '🆔 Order Number: ' + (uploadedOrder.orderInfo.orderNumber || 'N/A')),
+                                (uploadedOrder.orderInfo.orderNumber && 
+                                 (uploadedOrder.orderInfo.orderNumber.startsWith('RL') || 
+                                  uploadedOrder.orderInfo.orderNumber.startsWith('RD') || 
+                                  uploadedOrder.orderInfo.orderNumber.startsWith('R3') ||
+                                  uploadedOrder.orderInfo.orderNumber.startsWith('ND'))) &&
+                                React.createElement('div', { style: { fontSize: '0.875rem', color: '#92400e', marginTop: '0.5rem', fontStyle: 'italic' } },
+                                    uploadedOrder.orderInfo.orderNumber.startsWith('RL') && '↳ Random Tests Order',
+                                    uploadedOrder.orderInfo.orderNumber.startsWith('ND') && '↳ Name + DOB Only Order',
+                                    uploadedOrder.orderInfo.orderNumber.startsWith('RD') && '↳ Random Demographics v2.3.1 Order', 
+                                    uploadedOrder.orderInfo.orderNumber.startsWith('R3') && '↳ Random Demographics v2.3 Order'
+                                )
+                            )
+                        ),
+
+                        // Physician Information
+                        React.createElement('div', { className: 'info-card', style: { background: '#faf5ff' } },
+                            React.createElement('h4', { style: { color: '#6b21a8' } }, '👨‍⚕️ Ordering Physician Information'),
+                            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' } },
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'NPI Number: '),
+                                    uploadedOrder.orderInfo.physicianNPI || 'N/A'
+                                ),
+                                React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                    React.createElement('strong', null, 'Full Name: '),
+                                    'Dr. ' + (uploadedOrder.orderInfo.physicianFirstName || 'Unknown') + ' ' + (uploadedOrder.orderInfo.physicianLastName || 'Physician')
+                                )
+                            )
+                        ),
+
+                        // Laboratory Tests - COMPLETE
+                        React.createElement('div', { style: { background: '#fffbeb', padding: '2rem', borderRadius: '12px', marginBottom: '2rem' } },
+                            React.createElement('h4', { style: { color: '#92400e', fontWeight: 600, marginBottom: '1rem' } }, '🧪 Laboratory Order Requests (OBR) - ' + uploadedOrder.labTests.length + ' test(s)'),
+                            uploadedOrder.labTests.map(function(test, index) {
+                                return React.createElement('div', { 
+                                    key: index, 
+                                    style: { 
+                                        background: 'white', 
+                                        padding: '1.5rem', 
+                                        borderRadius: '8px', 
+                                        marginBottom: '1rem',
+                                        border: '1px solid #e5e7eb'
+                                    }
+                                },
+                                    React.createElement('h5', { style: { color: '#92400e', marginBottom: '1rem', borderBottom: '2px solid #fed7aa', paddingBottom: '0.5rem' } },
+                                        '🧪 Test #' + test.sequence + ': ' + (test.name || 'Lab Test')
+                                    ),
+                                    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' } },
+                                        React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                            React.createElement('strong', null, 'Test Code: '),
+                                            test.code || 'N/A'
+                                        ),
+                                        React.createElement('div', { style: { fontSize: '0.875rem' } },
+                                            React.createElement('strong', null, 'Test Name: '),
+                                            test.name || 'N/A'
+                                        )
+                                    ),
+                                    React.createElement('div', { style: { marginTop: '1rem', background: '#fef3c7', padding: '1rem', borderRadius: '6px' } },
+                                        React.createElement('strong', null, '📊 Expected Results (' + test.results.length + '):'),
+                                        React.createElement('ul', { style: { marginLeft: '1rem', marginTop: '0.5rem', fontSize: '0.875rem' } },
+                                            test.results.map(function(result, idx) {
+                                                return React.createElement('li', { key: idx, style: { listStyle: 'disc', marginBottom: '0.25rem', color: '#78350f' } },
+                                                    React.createElement('strong', null, result.name + ' (' + result.code + ')'),
+                                                    ' - Unit: ' + result.unit + ', Range: ' + result.range
+                                                );
+                                            })
+                                        )
+                                    )
+                                );
+                            })
+                        ),
+                        
+                        React.createElement('div', { className: 'text-center' },
+                            React.createElement('button', {
+                                className: 'btn-green',
+                                style: { padding: '1rem 2rem', fontSize: '1.125rem' },
+                                onClick: handleGenerateResult
+                            }, 'Generate HL7 ORU^R01 Result')
+                        )
+                    );
+                }
+
                 function renderContent() {
                     if (currentModule === 'loaded-info' && uploadedOrder) {
                         return renderUploadedOrder();
@@ -1484,59 +999,43 @@
                             React.createElement('h2', { className: 'mb-4' }, 'Result from Order'),
                             React.createElement('div', { className: 'info-card' },
                                 React.createElement('h4', null, '📄 Current Loaded Order'),
-                                React.createElement('div', { style: { background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' } },
-                                    React.createElement('p', null,
-                                        React.createElement('strong', null, 'Patient: '),
-                                        uploadedOrder.patientInfo.firstName + ' ' + uploadedOrder.patientInfo.lastName
-                                    ),
-                                    React.createElement('p', null,
-                                        React.createElement('strong', null, 'MRN: '),
-                                        uploadedOrder.patientInfo.mrn
-                                    ),
-                                    React.createElement('p', null,
-                                        React.createElement('strong', null, 'Order Number: '),
-                                        uploadedOrder.orderInfo.orderNumber
-                                    ),
-                                    React.createElement('p', null,
-                                        React.createElement('strong', null, 'Tests: '),
-                                        uploadedOrder.labTests.length + ' laboratory test(s)'
-                                    )
+                                React.createElement('p', null,
+                                    React.createElement('strong', null, 'Patient: '),
+                                    uploadedOrder.patientInfo.firstName + ' ' + uploadedOrder.patientInfo.lastName
                                 ),
                                 React.createElement('button', {
                                     className: 'btn-green',
                                     style: { width: '100%', padding: '1rem' },
-                                    onClick: function() {
-                                        const result = generateResultHL7();
-                                        setGeneratedResult(result);
-                                        alert('✅ Result generated from current order!');
-                                    }
-                                }, 'Generate ORU^R01 Result')
+                                    onClick: handleGenerateResult
+                                }, 'Generate Lightning Step Compliant Result')
                             )
                         );
                     } else if (currentModule === 'random-tests') {
-                        return renderPatientSelector(generateForKnownPatient, 'Random Tests - Keep Original Demographics');
+                        return renderPatientSelector('Random Tests - Keep Original Demographics', 'RL');
                     } else if (currentModule === 'random-name-dob') {
-                        return renderPatientSelector(generateRandomNameDobOnly, 'Name + DOB Only - Everything Else Random');
+                        return renderPatientSelector('Name + DOB Only - Everything Else Random', 'ND');
                     } else if (currentModule === 'random-v231') {
-                        return renderPatientSelector(generateRandomDemo, 'Random Demographics v2.3.1 - Name Only');
+                        return renderPatientSelector('Random Demographics v2.3.1 - Name Only', 'RD', '2.3.1');
                     } else if (currentModule === 'random-v23') {
-                        return renderPatientSelector(generateRandomDemoV23, 'Random Demographics v2.3 - Name Only');
+                        return renderPatientSelector('Random Demographics v2.3 - Name Only', 'R3', '2.3');
                     } else {
                         return renderHome();
                     }
                 }
 
                 function renderResults() {
+                    console.log('Rendering results section - generatedResult length:', generatedResult ? generatedResult.length : 0);
+                    
                     return React.createElement('div', { className: 'results-section' },
-                        React.createElement('h2', { className: 'mb-4' }, 'HL7 ORU^R01 Result'),
-                        React.createElement('p', { className: 'mb-4' }, 'Generated laboratory results in HL7 format'),
+                        React.createElement('h2', { className: 'mb-4' }, 'Lightning Step Compliant HL7 ORU^R01 Result'),
+                        React.createElement('p', { className: 'mb-4' }, 'Generated laboratory results in Lightning Step compliant HL7 format'),
                         generatedResult && React.createElement('button', {
                             className: 'btn-indigo mb-4',
                             style: { padding: '0.75rem 1.5rem' },
                             onClick: handleDownload
                         }, 'Download HL7 File'),
                         React.createElement('div', { className: 'result-display' },
-                            generatedResult || 'Select a module and generate results...'
+                            generatedResult || 'Select a module and generate results to see the Lightning Step compliant HL7 format...'
                         )
                     );
                 }
