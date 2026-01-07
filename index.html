@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL7 Results Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; }
+        
+        .container { min-height: 100vh; background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%); padding: 2rem; }
+        .card { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        .header { background: linear-gradient(90deg, #2563eb 0%, #4f46e5 100%); padding: 2rem; color: white; }
+        .header h1 { font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .header p { opacity: 0.9; }
+        
+        .nav { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        .nav button { padding: 0.75rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
+        .nav button:hover { opacity: 0.9; }
+        .nav button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-orange { background: #f97316; color: white; }
+        .btn-purple { background: #a855f7; color: white; }
+        .btn-teal { background: #14b8a6; color: white; }
+        .btn-emerald { background: #10b981; color: white; }
+        .btn-gray { background: #6b7280; color: white; }
+        .btn-green { background: #16a34a; color: white; }
+        .btn-blue { background: #2563eb; color: white; }
+        .btn-indigo { background: #4f46e5; color: white; }
+        
+        .content { padding: 3rem; }
+        .results-section { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 3rem; text-align: center; }
+        
+        .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; max-width: 800px; margin: 2rem auto; }
+        .module-card { padding: 2rem; border: 2px solid; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .module-card:hover { transform: translateY(-2px); }
+        
+        .orange-card { background: #fff7ed; border-color: #fed7aa; }
+        .purple-card { background: #faf5ff; border-color: #e9d5ff; }
+        .teal-card { background: #f0fdfa; border-color: #99f6e4; }
+        .emerald-card { background: #ecfdf5; border-color: #a7f3d0; }
+        .gray-card { background: #f9fafb; border-color: #d1d5db; }
+        
+        .info-card { background: #eff6ff; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .info-card h4 { color: #1e40af; font-weight: 600; margin-bottom: 1rem; font-size: 1.125rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .info-item { font-size: 0.875rem; }
+        
+        .test-card { background: #fffbeb; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .test-card h4 { color: #92400e; font-weight: 600; margin-bottom: 1rem; font-size: 1.125rem; }
+        
+        .result-display { background: #111827; color: #4ade80; font-family: monospace; padding: 1.5rem; border-radius: 8px; 
+                         overflow-x: auto; max-height: 400px; white-space: pre-wrap; font-size: 0.875rem; margin: 1rem 0; }
+        
+        .hidden { display: none; }
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-4 { margin-top: 1rem; }
+        .flex { display: flex; }
+        .justify-center { justify-content: center; }
+        .items-center { align-items: center; }
+        .gap-2 { gap: 0.5rem; }
+        
+        select, input { padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
+        select { width: 100%; margin-bottom: 1rem; }
+        
+        .summary { background: #eff6ff; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; }
+        .summary h4 { color: #1e40af; margin-bottom: 1rem; }
+        .summary p { margin-bottom: 0.5rem; font-size: 0.875rem; color: #1d4ed8; }
+        
+        @media (max-width: 768px) {
+            .module-grid { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .nav { flex-direction: column; }
+            .content { padding: 1.5rem; }
+            .results-section { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+            Loading HL7 Results Generator...
+        </div>
+    </div>
+
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <script>
+        function initApp() {
+            if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+                document.getElementById('root').innerHTML = '<div style="text-align:center;padding:2rem;">Error loading React</div>';
+                return;
+            }
+
+            const { useState, useRef } = React;
+            const { createRoot } = ReactDOM;
+
+            function HL7Generator() {
+                const [uploadedOrder, setUploadedOrder] = useState(null);
+                const [generatedResult, setGeneratedResult] = useState('');
+                const [knownPatients, setKnownPatients] = useState([]);
+                const [currentModule, setCurrentModule] = useState('home');
+                const [selectedPatient, setSelectedPatient] = useState(null);
+                const fileInputRef = useRef(null);
+
+                // Generate EST datetime
+                function generateESTDateTime() {
+                    const now = new Date();
+                    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                    const est = new Date(utc + (-5 * 3600000));
+                    
+                    return est.getFullYear().toString() +
+                        String(est.getMonth() + 1).padStart(2, '0') +
+                        String(est.getDate()).padStart(2, '0') +
+                        String(est.getHours()).padStart(2, '0') +
+                        String(est.getMinutes()).padStart(2, '0') +
+                        String(est.getSeconds()).padStart(2, '0');
+                }
+
+                // Generate random demographics
+                function generateRandomDemographics(originalName) {
+                    const states = ['CA', 'NY', 'TX', 'FL', 'WA', 'OR'];
+                    const cities = ['Springfield', 'Franklin', 'Georgetown', 'Madison'];
+                    const streets = ['Main St', 'Oak Ave', 'Pine Rd', 'Cedar Ln'];
+                    
+                    const birthYear = Math.floor(Math.random() * (2005 - 1950) + 1950);
+                    const birthMonth = Math.floor(Math.random() * 12) + 1;
+                    const birthDay = Math.floor(Math.random() * 28) + 1;
+                    
+                    return {
+                        mrn: 'RD' + (Math.floor(Math.random() * 90000) + 10000),
+                        lastName: originalName.split(' ')[1] || 'Smith',
+                        firstName: originalName.split(' ')[0] || 'John',
+                        birthDate: birthYear + String(birthMonth).padStart(2, '0') + String(birthDay).padStart(2, '0'),
+                        gender: ['M', 'F', 'U'][Math.floor(Math.random() * 3)],
+                        address1: Math.floor(Math.random() * 9999) + 1 + ' ' + streets[Math.floor(Math.random() * streets.length)],
+                        city: cities[Math.floor(Math.random() * cities.length)],
+                        state: states[Math.floor(Math.random() * states.length)],
+                        zip: String(Math.floor(Math.random() * 90000) + 10000)
+                    };
+                }
+
+                // Generate random tests
+                function generateRandomTests() {
+                    const availableTests = [
+                        {
+                            code: 'CBC001',
+                            name: 'Complete Blood Count',
+                            results: [
+                                { code: 'WBC', name: 'White Blood Count', value: (Math.random() * 7 + 4).toFixed(1), unit: '10*3/uL', range: '4.0-11.0', status: 'N' },
+                                { code: 'RBC', name: 'Red Blood Count', value: (Math.random() * 1.5 + 3.5).toFixed(1), unit: '10*6/uL', range: '3.5-5.0', status: 'N' },
+                                { code: 'HGB', name: 'Hemoglobin', value: (Math.random() * 4 + 12).toFixed(1), unit: 'g/dL', range: '12.0-16.0', status: 'N' }
+                            ]
+                        },
+                        {
+                            code: 'CMP001', 
+                            name: 'Comprehensive Metabolic Panel',
+                            results: [
+                                { code: 'GLU', name: 'Glucose', value: Math.floor(Math.random() * 30 + 70).toString(), unit: 'mg/dL', range: '70-100', status: 'N' },
+                                { code: 'BUN', name: 'Blood Urea Nitrogen', value: Math.floor(Math.random() * 15 + 7).toString(), unit: 'mg/dL', range: '7-22', status: 'N' },
+                                { code: 'CREAT', name: 'Creatinine', value: (Math.random() * 0.8 + 0.6).toFixed(2), unit: 'mg/dL', range: '0.6-1.4', status: 'N' }
+                            ]
+                        },
+                        {
+                            code: 'LIPID001',
+                            name: 'Lipid Panel',
+                            results: [
+                                { code: 'CHOL', name: 'Total Cholesterol', value: Math.floor(Math.random() * 100 + 150).toString(), unit: 'mg/dL', range: '<200', status: 'N' },
+                                { code: 'HDL', name: 'HDL Cholesterol', value: Math.floor(Math.random() * 40 + 35).toString(), unit: 'mg/dL', range: '>40', status: 'N' },
+                                { code: 'LDL', name: 'LDL Cholesterol', value: Math.floor(Math.random() * 70 + 80).toString(), unit: 'mg/dL', range: '<100', status: 'N' }
+                            ]
+                        }
+                    ];
+                    
+                    const numTests = Math.floor(Math.random() * 3) + 1;
+                    const selectedTests = [];
+                    const usedIndices = new Set();
+                    
+                    while (selectedTests.length < numTests && selectedTests.length < availableTests.length) {
+                        const index = Math.floor(Math.random() * availableTests.length);
+                        if (!usedIndices.has(index)) {
+                            usedIndices.add(index);
+                            selectedTests.push({
+                                ...availableTests[index],
+                                sequence: selectedTests.length + 1
+                            });
+                        }
+                    }
+                    
+                    return selectedTests;
+                }
+
+                // Parse HL7 order - COMPLETE VERSION
+                function parseHL7Order(hl7Content) {
+                    try {
+                        let lines = hl7Content.split(/\r?\n/).filter(line => line.trim());
+                        
+                        if (lines.length === 1) {
+                            const singleLine = lines[0];
+                            const segments = singleLine.split(/(MSH|PID|PV1|IN1|IN2|GT1|ORC|OBR|DG1)/).filter(Boolean);
+                            
+                            lines = [];
+                            for (let i = 0; i < segments.length; i += 2) {
+                                if (segments[i] && segments[i + 1]) {
+                                    lines.push(segments[i] + segments[i + 1]);
+                                }
+                            }
+                        }
+                        
+                        const pidSegment = lines.find(line => line.startsWith('PID'));
+                        const mshSegment = lines.find(line => line.startsWith('MSH'));
+                        const pv1Segment = lines.find(line => line.startsWith('PV1'));
+                        const in1Segment = lines.find(line => line.startsWith('IN1'));
+                        const gt1Segment = lines.find(line => line.startsWith('GT1'));
+                        const orcSegments = lines.filter(line => line.startsWith('ORC'));
+                        const obrSegments = lines.filter(line => line.startsWith('OBR'));
+
+                        // Parse Patient Information (PID) - COMPLETE
+                        let patientInfo = {
+                            mrn: 'Unknown',
+                            lastName: 'Unknown',
+                            firstName: 'Patient',
+                            middleName: '',
+                            birthDate: '19900101',
+                            gender: 'U',
+                            address1: 'Unknown',
+                            city: 'Unknown',
+                            state: 'XX',
+                            zip: '00000',
+                            phoneHome: '(000) 000-0000',
+                            phoneBusiness: '(000) 000-0000',
+                            race: 'Unknown',
+                            maritalStatus: 'U',
+                            ssn: 'N/A',
+                            accountNumber: 'N/A'
+                        };
+
+                        if (pidSegment) {
+                            const fields = pidSegment.split('|');
+                            if (fields.length > 5) {
+                                const nameField = fields[5] || '';
+                                const nameParts = nameField.split('^');
+                                const addressField = fields[11] || '';
+                                const addressParts = addressField.split('^');
+                                const phoneField = fields[13] || '';
+                                const businessPhoneField = fields[14] || '';
+                                
+                                patientInfo = {
+                                    mrn: fields[3] || 'Unknown',
+                                    lastName: nameParts[0] || 'Unknown',
+                                    firstName: nameParts[1] || 'Patient',
+                                    middleName: nameParts[2] || '',
+                                    birthDate: fields[7] || '19900101',
+                                    gender: fields[8] || 'U',
+                                    address1: addressParts[0] || 'Unknown',
+                                    city: addressParts[2] || 'Unknown',
+                                    state: addressParts[3] || 'XX',
+                                    zip: addressParts[4] || '00000',
+                                    phoneHome: phoneField || '(000) 000-0000',
+                                    phoneBusiness: businessPhoneField || '(000) 000-0000',
+                                    race: fields[10] || 'Unknown',
+                                    maritalStatus: fields[16] || 'U',
+                                    ssn: fields[19] || 'N/A',
+                                    accountNumber: fields[18] || 'N/A'
+                                };
+                            }
+                        }
+
+                        // Parse Message Header (MSH) - COMPLETE
+                        let orderInfo = {
+                            orderNumber: 'TEST' + Math.floor(Math.random() * 1000),
+                            sendingApp: 'TestLab',
+                            sendingFacility: 'TestLab',
+                            receivingApp: 'LightningStep',
+                            receivingFacility: 'LightningStep',
+                            orderDateTime: generateESTDateTime(),
+                            controlId: 'CTRL' + Math.floor(Math.random() * 1000),
+                            messageType: 'ORM^O01',
+                            processingId: 'P',
+                            hl7Version: '2.3.1',
+                            sequenceNumber: 'N/A',
+                            physicianNPI: 'Unknown',
+                            physicianFirstName: 'Unknown',
+                            physicianLastName: 'Physician',
+                            physicianId: 'N/A',
+                            orderingProvider: 'N/A',
+                            orderControl: 'NW',
+                            placerOrderNumber: 'N/A',
+                            fillerOrderNumber: 'N/A',
+                            orderStatus: 'N/A',
+                            transactionDateTime: 'N/A',
+                            enteredBy: 'N/A'
+                        };
+
+                        if (mshSegment) {
+                            const fields = mshSegment.split('|');
+                            orderInfo = {
+                                ...orderInfo,
+                                sendingApp: fields[3] || 'TestLab',
+                                sendingFacility: fields[4] || 'TestLab',
+                                receivingApp: fields[5] || 'LightningStep',
+                                receivingFacility: fields[6] || 'LightningStep',
+                                orderDateTime: fields[7] || generateESTDateTime(),
+                                messageType: fields[9] || 'ORM^O01',
+                                controlId: fields[10] || 'CTRL' + Math.floor(Math.random() * 1000),
+                                processingId: fields[11] || 'P',
+                                hl7Version: fields[12] || '2.3.1',
+                                sequenceNumber: fields[13] || 'N/A'
+                            };
+                        }
+
+                        // Parse Order Control (ORC) - COMPLETE
+                        if (orcSegments.length > 0) {
+                            const orcFields = orcSegments[0].split('|');
+                            orderInfo.orderControl = orcFields[1] || 'NW';
+                            orderInfo.placerOrderNumber = orcFields[2] || 'N/A';
+                            orderInfo.fillerOrderNumber = orcFields[3] || 'N/A';
+                            orderInfo.orderNumber = orcFields[2] || orcFields[3] || orderInfo.orderNumber;
+                            orderInfo.orderStatus = orcFields[5] || 'N/A';
+                            orderInfo.transactionDateTime = orcFields[9] || 'N/A';
+                            orderInfo.enteredBy = orcFields[10] || 'N/A';
+                            orderInfo.orderingProvider = orcFields[12] || 'N/A';
+                        }
+
+                        // Parse Patient Visit (PV1) - COMPLETE
+                        let visitInfo = {};
+                        if (pv1Segment) {
+                            const fields = pv1Segment.split('|');
+                            visitInfo = {
+                                patientClass: fields[2] || 'O',
+                                assignedLocation: fields[3] || 'N/A',
+                                admissionType: fields[4] || 'N/A',
+                                attendingDoctor: fields[7] || 'N/A',
+                                visitNumber: fields[19] || 'N/A',
+                                dischargeDisposition: fields[36] || 'N/A'
+                            };
+                        }
+
+                        // Parse Insurance (IN1) - COMPLETE  
+                        let insuranceInfo = {};
+                        if (in1Segment) {
+                            const fields = in1Segment.split('|');
+                            insuranceInfo = {
+                                planId: fields[2] || 'N/A',
+                                companyName: fields[4] || 'N/A',
+                                policyNumber: fields[36] || 'N/A',
+                                groupNumber: fields[8] || 'N/A'
+                            };
+                        }
+
+                        // Parse Laboratory Tests (OBR) - COMPLETE
+                        const labTests = obrSegments.length > 0 ? obrSegments.map((obr, index) => {
+                            const fields = obr.split('|');
+                            const testInfo = fields[4] || '';
+                            const testParts = testInfo.split('^');
+                            const physicianInfo = fields[16] || '';
+                            const physicianParts = physicianInfo.split('^');
+                            
+                            // Extract physician info from first OBR segment
+                            if (index === 0 && physicianInfo) {
+                                orderInfo.physicianNPI = physicianParts[0] || 'Unknown';
+                                orderInfo.physicianFirstName = physicianParts[2] || 'Unknown';
+                                orderInfo.physicianLastName = physicianParts[1] || 'Physician';
+                                orderInfo.physicianId = physicianParts[0] || 'N/A';
+                            }
+                            
+                            return {
+                                sequence: index + 1,
+                                code: testParts[0] || 'TEST' + (index + 1),
+                                name: testParts[1] || 'Lab Test ' + (index + 1),
+                                priority: fields[5] || 'R',
+                                requestedDateTime: fields[6] || generateESTDateTime(),
+                                collectionDateTime: fields[7] || generateESTDateTime(),
+                                orderStatus: fields[25] || 'A',
+                                specimenSource: fields[15] || 'Unknown',
+                                orderingProvider: fields[16] || 'N/A',
+                                resultStatus: fields[25] || 'N/A',
+                                parentResult: fields[26] || 'N/A',
+                                results: [{
+                                    code: 'RESULT',
+                                    name: testParts[1] || 'Test Result',
+                                    value: (Math.random() * 100).toFixed(1),
+                                    unit: 'mg/dL',
+                                    range: '0-100',
+                                    status: 'N'
+                                }]
+                            };
+                        }) : generateRandomTests();
+
+                        return {
+                            success: true,
+                            patientInfo: patientInfo,
+                            orderInfo: orderInfo,
+                            visitInfo: visitInfo,
+                            insuranceInfo: insuranceInfo,
+                            labTests: labTests,
+                            originalHL7: hl7Content
+                        };
+                    } catch (error) {
+                        return { success: false, error: error.message };
+                    }
+                }
+
+                // Generate result HL7
+                function generateResultHL7() {
+                    if (!uploadedOrder) return '';
+
+                    const patientInfo = uploadedOrder.patientInfo;
+                    const orderInfo = uploadedOrder.orderInfo;
+                    const labTests = uploadedOrder.labTests;
+                    const resultDateTime = generateESTDateTime();
+                    const controlId = Math.floor(Math.random() * 900000000000000000000) + 100000000000000000000;
+                    const version = uploadedOrder.useV23 ? '2.3' : '2.3.1';
+                    
+                    let hl7Result = '';
+                    
+                    hl7Result += 'MSH|^~\\&|' + (orderInfo.receivingFacility || 'TempsLab') + '|' + (orderInfo.sendingFacility || '73929332') + '||LightningStep|' + resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '\r\n';
+                    hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + patientInfo.lastName + '^' + patientInfo.firstName + '||' + patientInfo.birthDate + '|' + patientInfo.gender + '\r\n';
+                    hl7Result += 'PV1|1|O|^^^&\r\n';
+                    
+                    for (let i = 0; i < labTests.length; i++) {
+                        const test = labTests[i];
+                        const accessionNumber = resultDateTime.substring(0, 8) + '-' + String(test.sequence).padStart(2, '0');
+                        hl7Result += 'ORC|RE|' + orderInfo.orderNumber + '|' + accessionNumber + '||CM||||' + resultDateTime + '\r\n';
+                        hl7Result += 'OBR|' + test.sequence + '|' + orderInfo.orderNumber + '|' + accessionNumber + '|' + test.code + '^' + test.name + '|||||' + resultDateTime + '|' + resultDateTime + '\r\n';
+                        
+                        for (let j = 0; j < test.results.length; j++) {
+                            const result = test.results[j];
+                            hl7Result += 'OBX|' + (j + 1) + '|NM|' + result.code + '^' + result.name + '|' + (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + result.status + '|||F|||' + resultDateTime + '\r\n';
+                        }
+                    }
+                    
+                    return hl7Result;
+                }
+
+                // Event handlers
+                function handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        const result = parseHL7Order(content);
+                        
+                        if (result.success) {
+                            setUploadedOrder(result);
+                            setCurrentModule('loaded-info'); // Redirect to loaded info instead of upload
+                            setGeneratedResult('');
+                            
+                            const patientKey = result.patientInfo.firstName + '_' + result.patientInfo.lastName + '_' + result.patientInfo.mrn;
+                            const existingPatient = knownPatients.find(p => p.key === patientKey);
+                            
+                            if (!existingPatient) {
+                                const newKnownPatient = {
+                                    key: patientKey,
+                                    patientInfo: result.patientInfo,
+                                    orderInfo: result.orderInfo,
+                                    labTests: result.labTests,
+                                    visitInfo: result.visitInfo,
+                                    insuranceInfo: result.insuranceInfo,
+                                    originalHL7: result.originalHL7,
+                                    displayName: result.patientInfo.firstName + ' ' + result.patientInfo.lastName + ' (' + result.patientInfo.mrn + ')',
+                                    addedDate: new Date().toISOString()
+                                };
+                                setKnownPatients(prev => [...prev, newKnownPatient]);
+                            }
+                            
+                            alert('✅ HL7 Order loaded successfully!');
+                        } else {
+                            alert('❌ Error parsing HL7: ' + result.error);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+
+                function handleGenerateResult() {
+                    if (!uploadedOrder) return;
+                    const result = generateResultHL7();
+                    setGeneratedResult(result);
+                    alert('✅ HL7 ORU^R01 result generated successfully!');
+                }
+
+                function handleDownload() {
+                    if (!generatedResult || !uploadedOrder) return;
+                    
+                    const resultDateTime = generateESTDateTime();
+                    const fileName = resultDateTime + '_' + uploadedOrder.patientInfo.mrn + '_ORU_R01.hl7';
+                    
+                    const blob = new Blob([generatedResult], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+
+                function generateResultFromOrder() {
+                    if (!selectedPatient) return;
+                    
+                    const resultData = {
+                        success: true,
+                        patientInfo: selectedPatient.patientInfo,
+                        orderInfo: selectedPatient.orderInfo,
+                        labTests: selectedPatient.labTests || generateRandomTests(),
+                        originalHL7: selectedPatient.originalHL7
+                    };
+                    
+                    setUploadedOrder(resultData);
+                    setCurrentModule('upload');
+                    
+                    setTimeout(function() {
+                        const result = generateResultHL7();
+                        setGeneratedResult(result);
+                        alert('✅ Result generated from original order!');
+                    }, 100);
+                }
+
+                function generateForKnownPatient() {
+                    if (!selectedPatient) return;
+                    
+                    const randomTests = generateRandomTests();
+                    const currentDateTime = generateESTDateTime();
+                    const randomOrderNumber = 'RL' + Math.floor(Math.random() * 900000 + 100000);
+                    
+                    const resultData = {
+                        success: true,
+                        patientInfo: selectedPatient.patientInfo,
+                        orderInfo: {
+                            orderNumber: randomOrderNumber,
+                            sendingApp: selectedPatient.orderInfo?.sendingApp || 'LightningStep',
+                            sendingFacility: selectedPatient.orderInfo?.sendingFacility || '73929332',
+                            receivingApp: selectedPatient.orderInfo?.receivingApp || 'TempsLab', 
+                            receivingFacility: selectedPatient.orderInfo?.receivingFacility || 'LightningStep',
+                            orderDateTime: currentDateTime,
+                            controlId: 'CTRL' + Math.floor(Math.random() * 999999999),
+                            messageType: 'ORM^O01',
+                            processingId: 'P',
+                            hl7Version: '2.3.1',
+                            physicianNPI: selectedPatient.orderInfo?.physicianNPI || '1234567893',
+                            physicianFirstName: selectedPatient.orderInfo?.physicianFirstName || 'Francisco',
+                            physicianLastName: selectedPatient.orderInfo?.physicianLastName || 'Jaramillo'
+                        },
+                        visitInfo: selectedPatient.visitInfo || {},
+                        insuranceInfo: selectedPatient.insuranceInfo || {},
+                        labTests: randomTests
+                    };
+                    
+                    setUploadedOrder(resultData);
+                    setCurrentModule('loaded-info');
+                    
+                    setTimeout(function() {
+                        const result = generateResultHL7();
+                        setGeneratedResult(result);
+                        alert('✅ Random tests generated for original patient!');
+                    }, 100);
+                }
+
+                function generateRandomDemo() {
+                    if (!selectedPatient) return;
+                    
+                    const randomTests = generateRandomTests();
+                    const currentDateTime = generateESTDateTime();
+                    const randomOrderNumber = 'RD' + Math.floor(Math.random() * 900000 + 100000);
+                    
+                    const originalName = selectedPatient.patientInfo.firstName + ' ' + selectedPatient.patientInfo.lastName;
+                    const randomDemo = generateRandomDemographics(originalName);
+                    
+                    const resultData = {
+                        success: true,
+                        patientInfo: randomDemo,
+                        orderInfo: {
+                            orderNumber: randomOrderNumber,
+                            sendingApp: 'LightningStep',
+                            sendingFacility: '73929332',
+                            receivingApp: 'LightningStep',
+                            receivingFacility: 'LightningStep',
+                            orderDateTime: currentDateTime,
+                            controlId: 'CTRL' + Math.floor(Math.random() * 999999999),
+                            messageType: 'ORM^O01',
+                            processingId: 'P',
+                            hl7Version: '2.3.1',
+                            physicianNPI: '1234567893',
+                            physicianFirstName: 'Francisco',
+                            physicianLastName: 'Jaramillo'
+                        },
+                        visitInfo: { patientClass: 'O' },
+                        insuranceInfo: {},
+                        labTests: randomTests
+                    };
+                    
+                    setUploadedOrder(resultData);
+                    setCurrentModule('loaded-info');
+                    
+                    setTimeout(function() {
+                        const result = generateResultHL7();
+                        setGeneratedResult(result);
+                        alert('✅ Random demographics v2.3.1 generated!');
+                    }, 100);
+                }
+
+                function generateRandomDemoV23() {
+                    if (!selectedPatient) return;
+                    
+                    const randomTests = generateRandomTests();
+                    const currentDateTime = generateESTDateTime();
+                    const randomOrderNumber = 'R3' + Math.floor(Math.random() * 900000 + 100000);
+                    
+                    const originalName = selectedPatient.patientInfo.firstName + ' ' + selectedPatient.patientInfo.lastName;
+                    const randomDemo = generateRandomDemographics(originalName);
+                    
+                    const resultData = {
+                        success: true,
+                        patientInfo: randomDemo,
+                        orderInfo: {
+                            orderNumber: randomOrderNumber,
+                            sendingApp: 'LightningStep',
+                            sendingFacility: '73929332',
+                            receivingApp: 'LightningStep',
+                            receivingFacility: 'LightningStep',
+                            orderDateTime: currentDateTime,
+                            controlId: 'CTRL' + Math.floor(Math.random() * 999999999),
+                            messageType: 'ORM^O01',
+                            processingId: 'P',
+                            hl7Version: '2.3',
+                            physicianNPI: '1234567893',
+                            physicianFirstName: 'Francisco',
+                            physicianLastName: 'Jaramillo'
+                        },
+                        visitInfo: { patientClass: 'O' },
+                        insuranceInfo: {},
+                        labTests: randomTests,
+                        useV23: true
+                    };
+                    
+                    setUploadedOrder(resultData);
+                    setCurrentModule('loaded-info');
+                    
+                    setTimeout(function() {
+                        const result = generateResultHL7();
+                        setGeneratedResult(result);
+                        alert('✅ Random demographics v2.3 generated!');
+                    }, 100);
+                }
+
+                // Render functions
+                function renderHeader() {
+                    return React.createElement('div', { className: 'header' },
+                        React.createElement('h1', null, 'HL7 Results Generator'),
+                        React.createElement('p', null, 'Lightning Step - 5 Functions ORU^R01'),
+                        React.createElement('div', { className: 'nav' },
+                            React.createElement('button', {
+                                className: 'btn-orange',
+                                onClick: function() { fileInputRef.current.click(); }
+                            }, 'Upload HL7 Order'),
+                            React.createElement('button', {
+                                className: uploadedOrder ? 'btn-indigo' : 'btn-gray',
+                                disabled: !uploadedOrder,
+                                onClick: function() { setCurrentModule('loaded-info'); }
+                            }, 'Loaded Order'),
+                            React.createElement('button', {
+                                className: uploadedOrder ? 'btn-blue' : 'btn-gray',
+                                disabled: !uploadedOrder,
+                                onClick: function() { setCurrentModule('result-from-order'); }
+                            }, 'Result from Order'),
+                            React.createElement('button', {
+                                className: knownPatients.length > 0 ? 'btn-purple' : 'btn-gray',
+                                disabled: knownPatients.length === 0,
+                                onClick: function() { setCurrentModule('random-tests'); }
+                            }, 'Random Tests (' + knownPatients.length + ')'),
+                            React.createElement('button', {
+                                className: knownPatients.length > 0 ? 'btn-teal' : 'btn-gray',
+                                disabled: knownPatients.length === 0,
+                                onClick: function() { setCurrentModule('random-v231'); }
+                            }, 'Random v2.3.1 (' + knownPatients.length + ')'),
+                            React.createElement('button', {
+                                className: knownPatients.length > 0 ? 'btn-emerald' : 'btn-gray',
+                                disabled: knownPatients.length === 0,
+                                onClick: function() { setCurrentModule('random-v23'); }
+                            }, 'Random v2.3 (' + knownPatients.length + ')'),
+                            React.createElement('button', {
+                                className: 'btn-gray',
+                                onClick: function() { 
+                                    setCurrentModule('home');
+                                    setUploadedOrder(null);
+                                    setGeneratedResult('');
+                                    setSelectedPatient(null);
+                                }
+                            }, 'New')
+                        )
+                    );
+                }
+
+                function renderHome() {
+                    return React.createElement('div', { className: 'text-center' },
+                        React.createElement('h2', { className: 'mb-8' }, 'Select a Module'),
+                        React.createElement('div', { className: 'module-grid' },
+                            React.createElement('div', {
+                                className: 'module-card orange-card',
+                                onClick: function() { fileInputRef.current.click(); }
+                            },
+                                React.createElement('h3', null, 'Upload HL7 Order'),
+                                React.createElement('p', null, 'Upload existing ORM^O01 file')
+                            ),
+                            knownPatients.length > 0 ? [
+                                React.createElement('div', {
+                                    key: 'result-from-order',
+                                    className: 'module-card',
+                                    style: { background: '#eff6ff', borderColor: '#bfdbfe' },
+                                    onClick: function() { setCurrentModule('result-from-order'); }
+                                },
+                                    React.createElement('h3', null, 'Result from Order'),
+                                    React.createElement('p', null, 'Convert existing order to result')
+                                ),
+                                React.createElement('div', {
+                                    key: 'random-tests',
+                                    className: 'module-card purple-card',
+                                    onClick: function() { setCurrentModule('random-tests'); }
+                                },
+                                    React.createElement('h3', null, 'Random Tests'),
+                                    React.createElement('p', null, 'Same patient + random lab tests')
+                                ),
+                                React.createElement('div', {
+                                    key: 'random-v231',
+                                    className: 'module-card teal-card',
+                                    onClick: function() { setCurrentModule('random-v231'); }
+                                },
+                                    React.createElement('h3', null, 'Random v2.3.1'),
+                                    React.createElement('p', null, 'Name only + all random')
+                                ),
+                                React.createElement('div', {
+                                    key: 'random-v23',
+                                    className: 'module-card emerald-card',
+                                    onClick: function() { setCurrentModule('random-v23'); }
+                                },
+                                    React.createElement('h3', null, 'Random v2.3'),
+                                    React.createElement('p', null, 'Name only + all random + v2.3')
+                                )
+                            ] : React.createElement('div', { className: 'module-card gray-card' },
+                                React.createElement('p', null, 'Upload at least one HL7 file to enable other modules.')
+                            )
+                        )
+                    );
+                }
+
+                function renderUploadedOrder() {
+                    if (!uploadedOrder) return null;
+                    
+                    return React.createElement('div', null,
+                        React.createElement('h2', { className: 'mb-4' }, 'Loaded Information - Complete HL7 Details'),
+                        
+                        // Patient Information - COMPLETE
+                        React.createElement('div', { className: 'info-card', style: { background: '#eff6ff' } },
+                            React.createElement('h4', { style: { color: '#1e40af' } }, '👤 Patient Information (PID)'),
+                            React.createElement('div', { className: 'info-grid' },
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Full Name: '),
+                                    (uploadedOrder.patientInfo.firstName || 'Unknown') + ' ' + 
+                                    (uploadedOrder.patientInfo.middleName ? uploadedOrder.patientInfo.middleName + ' ' : '') +
+                                    (uploadedOrder.patientInfo.lastName || 'Unknown')
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'MRN/Patient ID: '),
+                                    uploadedOrder.patientInfo.mrn || 'Unknown'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Birth Date: '),
+                                    uploadedOrder.patientInfo.birthDate || '19900101'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Gender: '),
+                                    uploadedOrder.patientInfo.gender || 'U'
+                                ),
+                                React.createElement('div', { className: 'info-item', style: { gridColumn: 'span 2' } },
+                                    React.createElement('strong', null, 'Complete Address: '),
+                                    (uploadedOrder.patientInfo.address1 && uploadedOrder.patientInfo.address1 !== 'Unknown' ? 
+                                        (uploadedOrder.patientInfo.address1 || 'N/A') + ', ' + 
+                                        (uploadedOrder.patientInfo.city || 'N/A') + ', ' + 
+                                        (uploadedOrder.patientInfo.state || 'N/A') + ' ' + 
+                                        (uploadedOrder.patientInfo.zip || 'N/A')
+                                        : 'Address information not available')
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Home Phone: '),
+                                    uploadedOrder.patientInfo.phoneHome && uploadedOrder.patientInfo.phoneHome !== '(000) 000-0000' ? 
+                                        uploadedOrder.patientInfo.phoneHome : 'Not provided'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Business Phone: '),
+                                    uploadedOrder.patientInfo.phoneBusiness && uploadedOrder.patientInfo.phoneBusiness !== '(000) 000-0000' ? 
+                                        uploadedOrder.patientInfo.phoneBusiness : 'Not provided'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Race/Ethnicity: '),
+                                    uploadedOrder.patientInfo.race && uploadedOrder.patientInfo.race !== 'Unknown' ? 
+                                        uploadedOrder.patientInfo.race : 'Not specified'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Marital Status: '),
+                                    uploadedOrder.patientInfo.maritalStatus || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'SSN: '),
+                                    uploadedOrder.patientInfo.ssn || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Account Number: '),
+                                    uploadedOrder.patientInfo.accountNumber || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Message Header - COMPLETE  
+                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
+                            React.createElement('h4', { style: { color: '#166534' } }, '📨 Message Header (MSH)'),
+                            React.createElement('div', { className: 'info-grid' },
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Message Type: '),
+                                    uploadedOrder.orderInfo.messageType || 'ORM^O01'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'HL7 Version: '),
+                                    uploadedOrder.orderInfo.hl7Version || '2.3.1'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Sending Application: '),
+                                    uploadedOrder.orderInfo.sendingApp || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Sending Facility: '),
+                                    uploadedOrder.orderInfo.sendingFacility || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Receiving Application: '),
+                                    uploadedOrder.orderInfo.receivingApp || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Receiving Facility: '),
+                                    uploadedOrder.orderInfo.receivingFacility || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Date/Time of Message: '),
+                                    uploadedOrder.orderInfo.orderDateTime || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Message Control ID: '),
+                                    uploadedOrder.orderInfo.controlId || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Processing ID: '),
+                                    uploadedOrder.orderInfo.processingId || 'P'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Sequence Number: '),
+                                    uploadedOrder.orderInfo.sequenceNumber || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Order Control - COMPLETE
+                        React.createElement('div', { className: 'info-card', style: { background: '#fef3c7' } },
+                            React.createElement('h4', { style: { color: '#92400e' } }, '📋 Order Control (ORC)'),
+                            React.createElement('div', { style: { background: '#fef9c3', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' } },
+                                React.createElement('strong', null, '🆔 Order Number: ' + (uploadedOrder.orderInfo.orderNumber || 'N/A')),
+                                // Show if it's a random generated order number
+                                (uploadedOrder.orderInfo.orderNumber && 
+                                 (uploadedOrder.orderInfo.orderNumber.startsWith('RL') || 
+                                  uploadedOrder.orderInfo.orderNumber.startsWith('RD') || 
+                                  uploadedOrder.orderInfo.orderNumber.startsWith('R3'))) &&
+                                React.createElement('div', { style: { fontSize: '0.875rem', color: '#92400e', marginTop: '0.5rem', fontStyle: 'italic' } },
+                                    uploadedOrder.orderInfo.orderNumber.startsWith('RL') && '↳ Random Tests Order',
+                                    uploadedOrder.orderInfo.orderNumber.startsWith('RD') && '↳ Random Demographics v2.3.1 Order', 
+                                    uploadedOrder.orderInfo.orderNumber.startsWith('R3') && '↳ Random Demographics v2.3 Order'
+                                )
+                            ),
+                            React.createElement('div', { className: 'info-grid' },
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Order Control: '),
+                                    uploadedOrder.orderInfo.orderControl || 'NW'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Placer Order Number: '),
+                                    uploadedOrder.orderInfo.placerOrderNumber || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Filler Order Number: '),
+                                    uploadedOrder.orderInfo.fillerOrderNumber || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Order Status: '),
+                                    uploadedOrder.orderInfo.orderStatus || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Transaction Date/Time: '),
+                                    uploadedOrder.orderInfo.transactionDateTime || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Entered By: '),
+                                    uploadedOrder.orderInfo.enteredBy || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Physician Information - COMPLETE
+                        React.createElement('div', { className: 'info-card', style: { background: '#faf5ff' } },
+                            React.createElement('h4', { style: { color: '#6b21a8' } }, '👨‍⚕️ Ordering Physician Information'),
+                            React.createElement('div', { className: 'info-grid' },
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'NPI Number: '),
+                                    uploadedOrder.orderInfo.physicianNPI || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Full Name: '),
+                                    'Dr. ' + (uploadedOrder.orderInfo.physicianFirstName || 'Unknown') + ' ' + (uploadedOrder.orderInfo.physicianLastName || 'Physician')
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Physician ID: '),
+                                    uploadedOrder.orderInfo.physicianId || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Ordering Provider: '),
+                                    uploadedOrder.orderInfo.orderingProvider || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Patient Visit - COMPLETE
+                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
+                            React.createElement('h4', { style: { color: '#166534' } }, '🏥 Patient Visit (PV1)'),
+                            React.createElement('div', { className: 'info-grid' },
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Patient Class: '),
+                                    uploadedOrder.visitInfo?.patientClass || 'O (Outpatient)'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Assigned Patient Location: '),
+                                    uploadedOrder.visitInfo?.assignedLocation || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Admission Type: '),
+                                    uploadedOrder.visitInfo?.admissionType || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Attending Doctor: '),
+                                    uploadedOrder.visitInfo?.attendingDoctor || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Visit Number: '),
+                                    uploadedOrder.visitInfo?.visitNumber || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Discharge Disposition: '),
+                                    uploadedOrder.visitInfo?.dischargeDisposition || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Laboratory Tests - COMPLETE with all details
+                        React.createElement('div', { className: 'test-card' },
+                            React.createElement('h4', null, '🧪 Laboratory Order Requests (OBR) - ' + uploadedOrder.labTests.length + ' test(s)'),
+                            uploadedOrder.labTests.map(function(test, index) {
+                                return React.createElement('div', { 
+                                    key: index, 
+                                    style: { 
+                                        background: 'white', 
+                                        padding: '1.5rem', 
+                                        borderRadius: '8px', 
+                                        marginBottom: '1rem',
+                                        border: '1px solid #e5e7eb'
+                                    }
+                                },
+                                    React.createElement('h5', { style: { color: '#92400e', marginBottom: '1rem', borderBottom: '2px solid #fed7aa', paddingBottom: '0.5rem' } },
+                                        '🧪 Test #' + test.sequence + ': ' + (test.name || 'Lab Test')
+                                    ),
+                                    React.createElement('div', { className: 'info-grid', style: { marginBottom: '1rem' } },
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Test Code: '),
+                                            test.code || 'N/A'
+                                        ),
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Test Name: '),
+                                            test.name || 'N/A'
+                                        ),
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Priority: '),
+                                            test.priority || 'R (Routine)'
+                                        ),
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Order Status: '),
+                                            test.orderStatus || 'A (Some, but not all results available)'
+                                        ),
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Requested Date/Time: '),
+                                            test.requestedDateTime || 'N/A'
+                                        ),
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Collection Date/Time: '),
+                                            test.collectionDateTime || 'N/A'
+                                        ),
+                                        React.createElement('div', { className: 'info-item', style: { gridColumn: 'span 2' } },
+                                            React.createElement('strong', null, 'Specimen Source: '),
+                                            test.specimenSource || 'N/A'
+                                        ),
+                                        React.createElement('div', { className: 'info-item', style: { gridColumn: 'span 2' } },
+                                            React.createElement('strong', null, 'Ordering Provider: '),
+                                            test.orderingProvider || 'N/A'
+                                        ),
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Result Status: '),
+                                            test.resultStatus || 'N/A'
+                                        ),
+                                        React.createElement('div', { className: 'info-item' },
+                                            React.createElement('strong', null, 'Parent Result: '),
+                                            test.parentResult || 'N/A'
+                                        )
+                                    ),
+                                    React.createElement('div', { style: { marginTop: '1rem', background: '#fef3c7', padding: '1rem', borderRadius: '6px' } },
+                                        React.createElement('strong', null, '📊 Expected Results (' + test.results.length + '):'),
+                                        React.createElement('ul', { style: { marginLeft: '1rem', marginTop: '0.5rem', fontSize: '0.875rem' } },
+                                            test.results.map(function(result, idx) {
+                                                return React.createElement('li', { key: idx, style: { listStyle: 'disc', marginBottom: '0.25rem', color: '#78350f' } },
+                                                    React.createElement('strong', null, result.name + ' (' + result.code + ')'),
+                                                    ' - Unit: ' + result.unit + ', Range: ' + result.range + ', Status: ' + result.status
+                                                );
+                                            })
+                                        )
+                                    )
+                                );
+                            })
+                        ),
+
+                        // Insurance Information (if available)
+                        (uploadedOrder.insuranceInfo && Object.keys(uploadedOrder.insuranceInfo).length > 0) && 
+                        React.createElement('div', { className: 'info-card', style: { background: '#ecfdf5' } },
+                            React.createElement('h4', { style: { color: '#166534' } }, '💳 Insurance Information (IN1)'),
+                            React.createElement('div', { className: 'info-grid' },
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Insurance Plan ID: '),
+                                    uploadedOrder.insuranceInfo.planId || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Insurance Company: '),
+                                    uploadedOrder.insuranceInfo.companyName || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Policy Number: '),
+                                    uploadedOrder.insuranceInfo.policyNumber || 'N/A'
+                                ),
+                                React.createElement('div', { className: 'info-item' },
+                                    React.createElement('strong', null, 'Group Number: '),
+                                    uploadedOrder.insuranceInfo.groupNumber || 'N/A'
+                                )
+                            )
+                        ),
+
+                        // Raw HL7 Preview
+                        uploadedOrder.originalHL7 && React.createElement('div', { 
+                            style: { 
+                                background: '#f9fafb', 
+                                padding: '2rem', 
+                                borderRadius: '12px', 
+                                marginBottom: '2rem' 
+                            }
+                        },
+                            React.createElement('h4', { className: 'mb-4' }, '📄 Original HL7 Message (First 1000 characters)'),
+                            React.createElement('div', { 
+                                className: 'result-display',
+                                style: { fontSize: '0.75rem', maxHeight: '10rem', whiteSpace: 'pre-wrap' }
+                            },
+                                uploadedOrder.originalHL7.substring(0, 1000) + (uploadedOrder.originalHL7.length > 1000 ? '\n\n... (truncated)' : '')
+                            )
+                        ),
+                        
+                        React.createElement('div', { className: 'text-center' },
+                            React.createElement('button', {
+                                className: 'btn-green',
+                                style: { padding: '1rem 2rem', fontSize: '1.125rem' },
+                                onClick: handleGenerateResult
+                            }, 'Generate HL7 ORU^R01 Result')
+                        )
+                    );
+                }
+
+                function renderPatientSelector(onGenerate, title) {
+                    return React.createElement('div', null,
+                        React.createElement('h2', { className: 'mb-4' }, title),
+                        React.createElement('div', { className: 'info-card' },
+                            React.createElement('h4', null, '👥 Select Known Patient'),
+                            React.createElement('select', {
+                                value: selectedPatient ? selectedPatient.key : '',
+                                onChange: function(e) {
+                                    const patient = knownPatients.find(function(p) { return p.key === e.target.value; });
+                                    setSelectedPatient(patient || null);
+                                }
+                            },
+                                React.createElement('option', { value: '' }, 'Select a patient...'),
+                                knownPatients.map(function(patient) {
+                                    return React.createElement('option', {
+                                        key: patient.key,
+                                        value: patient.key
+                                    }, patient.displayName);
+                                })
+                            ),
+                            selectedPatient && React.createElement('div', { style: { marginTop: '1rem', padding: '1rem', background: 'white', borderRadius: '8px' } },
+                                React.createElement('h5', null, 'Selected Patient:'),
+                                React.createElement('p', null, selectedPatient.patientInfo.firstName + ' ' + selectedPatient.patientInfo.lastName + ' (' + selectedPatient.patientInfo.mrn + ')')
+                            ),
+                            React.createElement('button', {
+                                className: selectedPatient ? 'btn-green' : 'btn-gray',
+                                style: { width: '100%', padding: '1rem', marginTop: '1rem' },
+                                disabled: !selectedPatient,
+                                onClick: onGenerate
+                            }, 'Generate Results')
+                        )
+                    );
+                }
+
+                function renderContent() {
+                    if (currentModule === 'loaded-info' && uploadedOrder) {
+                        return renderUploadedOrder();
+                    } else if (currentModule === 'result-from-order') {
+                        // Use the most recently uploaded order directly
+                        if (!uploadedOrder) {
+                            return React.createElement('div', { className: 'text-center' },
+                                React.createElement('h2', { className: 'mb-4' }, 'Result from Order'),
+                                React.createElement('div', { className: 'info-card' },
+                                    React.createElement('p', { style: { color: '#ef4444', textAlign: 'center' } },
+                                        '⚠️ No order has been uploaded yet. Please upload an HL7 order first.'
+                                    )
+                                )
+                            );
+                        }
+                        return React.createElement('div', null,
+                            React.createElement('h2', { className: 'mb-4' }, 'Result from Order - Convert Current Order to Result'),
+                            React.createElement('div', { className: 'info-card' },
+                                React.createElement('h4', null, '📄 Current Loaded Order'),
+                                React.createElement('div', { style: { background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' } },
+                                    React.createElement('p', null,
+                                        React.createElement('strong', null, 'Patient: '),
+                                        uploadedOrder.patientInfo.firstName + ' ' + uploadedOrder.patientInfo.lastName
+                                    ),
+                                    React.createElement('p', null,
+                                        React.createElement('strong', null, 'MRN: '),
+                                        uploadedOrder.patientInfo.mrn
+                                    ),
+                                    React.createElement('p', null,
+                                        React.createElement('strong', null, 'Order Number: '),
+                                        uploadedOrder.orderInfo.orderNumber
+                                    ),
+                                    React.createElement('p', null,
+                                        React.createElement('strong', null, 'Tests: '),
+                                        uploadedOrder.labTests.length + ' laboratory test(s)'
+                                    )
+                                ),
+                                React.createElement('p', { style: { marginBottom: '1rem', color: '#4b5563' } },
+                                    'This will convert your current ORM^O01 order to an ORU^R01 result using the exact same patient information, tests, and order details.'
+                                ),
+                                React.createElement('button', {
+                                    className: 'btn-green',
+                                    style: { width: '100%', padding: '1rem' },
+                                    onClick: function() {
+                                        // Use current uploaded order directly
+                                        const result = generateResultHL7();
+                                        setGeneratedResult(result);
+                                        alert('✅ Result generated from current order!');
+                                    }
+                                }, 'Generate ORU^R01 Result from Current Order')
+                            )
+                        );
+                    } else if (currentModule === 'random-tests') {
+                        return renderPatientSelector(generateForKnownPatient, 'Random Tests - Keep Original Demographics');
+                    } else if (currentModule === 'random-v231') {
+                        return renderPatientSelector(generateRandomDemo, 'Random Demographics v2.3.1 - Name Only');
+                    } else if (currentModule === 'random-v23') {
+                        return renderPatientSelector(generateRandomDemoV23, 'Random Demographics v2.3 - Name Only');
+                    } else {
+                        return renderHome();
+                    }
+                }
+
+                function renderResults() {
+                    return React.createElement('div', { className: 'results-section' },
+                        React.createElement('h2', { className: 'mb-4' }, 'HL7 ORU^R01 Result'),
+                        React.createElement('p', { className: 'mb-4' }, 'Generated laboratory results in HL7 format'),
+                        generatedResult && React.createElement('button', {
+                            className: 'btn-indigo mb-4',
+                            style: { padding: '0.75rem 1.5rem' },
+                            onClick: handleDownload
+                        }, 'Download HL7 File'),
+                        React.createElement('div', { className: 'result-display' },
+                            generatedResult || 'Select a module and generate results...'
+                        )
+                    );
+                }
+
+                return React.createElement('div', { className: 'container' },
+                    React.createElement('div', { className: 'card' },
+                        renderHeader(),
+                        React.createElement('input', {
+                            ref: fileInputRef,
+                            type: 'file',
+                            accept: '.hl7,.txt',
+                            onChange: handleFileUpload,
+                            style: { display: 'none' }
+                        }),
+                        React.createElement('div', { className: 'content' },
+                            renderContent()
+                        ),
+                        renderResults()
+                    )
+                );
+            }
+
+            const container = document.getElementById('root');
+            const root = createRoot(container);
+            root.render(React.createElement(HL7Generator));
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>
