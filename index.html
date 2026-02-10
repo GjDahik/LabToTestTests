@@ -107,11 +107,31 @@ BMP:[
 {c:'CREAT',n:'Creatinine',gv:function(){return(Math.random()*0.9+0.5).toFixed(2)},u:'mg/dL',r:'0.5-1.4',gs:function(v){var n=parseFloat(v);return(n>=0.5&&n<=1.4)?'N':'A'}},
 {c:'NA',n:'Sodium',gv:function(){return Math.floor(Math.random()*10+135).toString()},u:'mEq/L',r:'135-145',gs:function(v){var n=parseInt(v);return(n>=135&&n<=145)?'N':'A'}},
 {c:'K',n:'Potassium',gv:function(){return(Math.random()*1.5+3.5).toFixed(1)},u:'mEq/L',r:'3.5-5.0',gs:function(v){var n=parseFloat(v);return(n>=3.5&&n<=5)?'N':'A'}}
-]
+],
+/* Confirmation/Quantitative drug tests */
+'6-MAM':[{c:'6MAM',n:'6-Monoacetylmorphine',gv:function(){return Math.random()>.8?Math.floor(Math.random()*50+15):Math.floor(Math.random()*8+1)},u:'ng/mL',r:'<10',gs:function(v){return parseInt(v)>=10?'A':'N'}}],
+'PAN138':'6-MAM',
+'7-HYDROXYMITRAGYNINE':[{c:'7OHMIT',n:'7-hydroxymitragynine',gv:function(){return Math.random()>.75?(Math.random()*8+2).toFixed(1):(Math.random()*1.5+0.1).toFixed(1)},u:'ng/mL',r:'<1.0',gs:function(v){return parseFloat(v)>=1?'A':'N'}}],
+'PAN234':'7-HYDROXYMITRAGYNINE',
+'7-AMINOCLONAZEPAM':[{c:'7ACLNZ',n:'7-Aminoclonazepam',gv:function(){return Math.random()>.7?Math.floor(Math.random()*150+30):Math.floor(Math.random()*20+1)},u:'ng/mL',r:'<20',gs:function(v){return parseInt(v)>=20?'A':'N'}}],
+'PAN139':'7-AMINOCLONAZEPAM',
+'ACUTE HEPATITIS PANEL':[
+{c:'HBSAG',n:'Hepatitis B Surface Antigen',gv:function(){return Math.random()>.9?'Reactive':'Non-Reactive'},u:'',r:'Non-Reactive',gs:function(v){return v==='Non-Reactive'?'N':'A'}},
+{c:'HBSAB',n:'Hepatitis B Surface Antibody',gv:function(){return Math.random()>.5?Math.floor(Math.random()*800+12):Math.floor(Math.random()*8+1)},u:'mIU/mL',r:'>10',gs:function(v){return parseInt(v)>10?'N':'A'}},
+{c:'HBCAB',n:'Hepatitis B Core Antibody',gv:function(){return Math.random()>.85?'Reactive':'Non-Reactive'},u:'',r:'Non-Reactive',gs:function(v){return v==='Non-Reactive'?'N':'A'}},
+{c:'HBCIGM',n:'Hepatitis B Core IgM Antibody',gv:function(){return Math.random()>.95?'Reactive':'Non-Reactive'},u:'',r:'Non-Reactive',gs:function(v){return v==='Non-Reactive'?'N':'A'}},
+{c:'HCVAB',n:'Hepatitis C Antibody',gv:function(){return Math.random()>.9?'Reactive':'Non-Reactive'},u:'',r:'Non-Reactive',gs:function(v){return v==='Non-Reactive'?'N':'A'}},
+{c:'HAVIGM',n:'Hepatitis A IgM Antibody',gv:function(){return Math.random()>.95?'Reactive':'Non-Reactive'},u:'',r:'Non-Reactive',gs:function(v){return v==='Non-Reactive'?'N':'A'}}
+],
+'CH0306':'ACUTE HEPATITIS PANEL',
+'ALANINE AMINOTRANSFERASE':[{c:'ALT',n:'Alanine Aminotransferase (ALT)',gv:function(){return Math.floor(Math.random()*40+7).toString()},u:'U/L',r:'7-56',gs:function(v){var n=parseInt(v);return(n>=7&&n<=56)?'N':'A'}}],
+'ALT':[{c:'ALT',n:'Alanine Aminotransferase (ALT)',gv:function(){return Math.floor(Math.random()*40+7).toString()},u:'U/L',r:'7-56',gs:function(v){var n=parseInt(v);return(n>=7&&n<=56)?'N':'A'}}],
+'CH0200':'ALANINE AMINOTRANSFERASE',
+'ALANINE AMINOTRANSFERASE (ALT)':'ALANINE AMINOTRANSFERASE'
 };
 
 /* Alias map */
-var ALIAS={'URINE DRUG SCREEN':'UDS','DRUG SCREEN':'UDS','DRUG SCREEN, URINE':'UDS','UDS SCREEN':'UDS','URINE TOX':'UDS','UTOX':'UDS','TOX SCREEN':'UDS','COMPLETE BLOOD COUNT':'CBC','CBC W/DIFF':'CBC','CBC WITH DIFF':'CBC','CBC001':'CBC','COMPREHENSIVE METABOLIC PANEL':'CMP','CMP001':'CMP','BASIC METABOLIC PANEL':'BMP','LIPID PANEL':'LIPID','LIPID001':'LIPID','LIPID PROFILE':'LIPID','THYROID PANEL':'THYROID','LIVER PANEL':'HEPATIC','HEPATIC PANEL':'HEPATIC','LIVER FUNCTION':'HEPATIC','LFT':'HEPATIC','URINALYSIS':'UA','HBA1C':'A1C','HEMOGLOBIN A1C':'A1C','GLYCATED HEMOGLOBIN':'A1C','VITAMIN D':'VITD','25-HYDROXY VITAMIN D':'VITD','IRON PANEL':'IRON','IRON STUDIES':'IRON','PSA SCREEN':'PSA'};
+var ALIAS={'URINE DRUG SCREEN':'UDS','DRUG SCREEN':'UDS','DRUG SCREEN, URINE':'UDS','UDS SCREEN':'UDS','URINE TOX':'UDS','UTOX':'UDS','TOX SCREEN':'UDS','COMPLETE BLOOD COUNT':'CBC','CBC W/DIFF':'CBC','CBC WITH DIFF':'CBC','CBC001':'CBC','COMPREHENSIVE METABOLIC PANEL':'CMP','CMP001':'CMP','BASIC METABOLIC PANEL':'BMP','LIPID PANEL':'LIPID','LIPID001':'LIPID','LIPID PROFILE':'LIPID','THYROID PANEL':'THYROID','LIVER PANEL':'HEPATIC','HEPATIC PANEL':'HEPATIC','LIVER FUNCTION':'HEPATIC','LFT':'HEPATIC','URINALYSIS':'UA','HBA1C':'A1C','HEMOGLOBIN A1C':'A1C','GLYCATED HEMOGLOBIN':'A1C','VITAMIN D':'VITD','25-HYDROXY VITAMIN D':'VITD','IRON PANEL':'IRON','IRON STUDIES':'IRON','PSA SCREEN':'PSA','PAN138':'6-MAM','PAN234':'7-HYDROXYMITRAGYNINE','PAN139':'7-AMINOCLONAZEPAM','CH0306':'ACUTE HEPATITIS PANEL','CH0200':'ALANINE AMINOTRANSFERASE','ALANINE AMINOTRANSFERASE (ALT)':'ALANINE AMINOTRANSFERASE'};
 
 function lookupTest(code,name){
     var c=(code||'').toUpperCase().trim(),nm=(name||'').toUpperCase().trim();
