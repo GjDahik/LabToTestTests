@@ -5,620 +5,476 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HL7 Results Generator - Lightning Step Compliant</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; }
-        .container { min-height: 100vh; background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%); padding: 2rem; }
-        .card { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: linear-gradient(90deg, #2563eb 0%, #4f46e5 100%); padding: 2rem; color: white; }
-        .header h1 { font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; }
-        .header p { opacity: 0.9; }
-        .nav { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-        .nav button { padding: 0.75rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
-        .nav button:hover { opacity: 0.9; }
-        .nav button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-orange { background: #f97316; color: white; }
-        .btn-purple { background: #a855f7; color: white; }
-        .btn-teal { background: #14b8a6; color: white; }
-        .btn-emerald { background: #10b981; color: white; }
-        .btn-gray { background: #6b7280; color: white; }
-        .btn-green { background: #16a34a; color: white; }
-        .btn-blue { background: #2563eb; color: white; }
-        .btn-indigo { background: #4f46e5; color: white; }
-        .btn-pink { background: #ec4899; color: white; }
-        .content { padding: 3rem; }
-        .results-section { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 3rem; text-align: center; }
-        .info-card { background: #eff6ff; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
-        .info-card h4 { color: #1e40af; font-weight: 600; margin-bottom: 1rem; font-size: 1.125rem; }
-        .file-card { background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); border: 2px solid #f9a8d4; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; }
-        .file-card h4 { color: #be185d; margin-bottom: 0.5rem; }
-        .result-display { background: #111827; color: #4ade80; font-family: monospace; padding: 1.5rem; border-radius: 8px; overflow-x: auto; max-height: 400px; white-space: pre-wrap; font-size: 0.875rem; margin: 1rem 0; }
-        .compliance-badge { background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .file-badge { background: #ec4899; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem; }
-        .text-center { text-align: center; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-8 { margin-bottom: 2rem; }
-        select, input { padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
-        select { width: 100%; margin-bottom: 1rem; }
-        @media (max-width: 768px) { .nav { flex-direction: column; } .content { padding: 1.5rem; } .results-section { padding: 1.5rem; } }
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;line-height:1.6}.container{min-height:100vh;background:linear-gradient(135deg,#eff6ff 0%,#e0e7ff 100%);padding:2rem}.card{max-width:1200px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 25px 50px rgba(0,0,0,.1);overflow:hidden}.header{background:linear-gradient(90deg,#2563eb 0%,#4f46e5 100%);padding:2rem;color:#fff}.header h1{font-size:2rem;font-weight:bold;margin-bottom:.5rem}.header p{opacity:.9}.nav{display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap}.nav button{padding:.75rem 1rem;border:none;border-radius:8px;cursor:pointer;font-size:.875rem;font-weight:500;transition:all .2s}.nav button:hover{opacity:.9}.nav button:disabled{opacity:.5;cursor:not-allowed}.btn-orange{background:#f97316;color:#fff}.btn-purple{background:#a855f7;color:#fff}.btn-teal{background:#14b8a6;color:#fff}.btn-emerald{background:#10b981;color:#fff}.btn-gray{background:#6b7280;color:#fff}.btn-green{background:#16a34a;color:#fff}.btn-blue{background:#2563eb;color:#fff}.btn-indigo{background:#4f46e5;color:#fff}.btn-pink{background:#ec4899;color:#fff}.content{padding:3rem}.results-section{background:#f9fafb;border-top:1px solid #e5e7eb;padding:3rem;text-align:center}.info-card{background:#eff6ff;padding:2rem;border-radius:12px;margin-bottom:2rem}.info-card h4{color:#1e40af;font-weight:600;margin-bottom:1rem;font-size:1.125rem}.file-card{background:linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%);border:2px solid #f9a8d4;padding:1.5rem;border-radius:12px;margin-bottom:1rem}.file-card h4{color:#be185d;margin-bottom:.5rem}.result-display{background:#111827;color:#4ade80;font-family:monospace;padding:1.5rem;border-radius:8px;overflow-x:auto;max-height:400px;white-space:pre-wrap;font-size:.875rem;margin:1rem 0}.compliance-badge{background:#10b981;color:#fff;padding:.5rem 1rem;border-radius:20px;font-size:.75rem;font-weight:600}.file-badge{background:#ec4899;color:#fff;padding:.5rem 1rem;border-radius:20px;font-size:.75rem;font-weight:600;margin-left:.5rem}.text-center{text-align:center}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}select,input{padding:.75rem;border:1px solid #d1d5db;border-radius:6px;font-size:1rem}select{width:100%;margin-bottom:1rem}@media(max-width:768px){.nav{flex-direction:column}.content{padding:1.5rem}.results-section{padding:1.5rem}}
     </style>
 </head>
 <body>
-    <div id="root"><div style="display: flex; justify-content: center; align-items: center; height: 100vh;">Loading HL7 Results Generator...</div></div>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script>
-        function initApp() {
-            if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') { document.getElementById('root').innerHTML = '<div style="text-align:center;padding:2rem;">Error loading React</div>'; return; }
-            const { useState, useRef } = React;
-            const { createRoot } = ReactDOM;
+<div id="root"><div style="display:flex;justify-content:center;align-items:center;height:100vh">Loading HL7 Results Generator...</div></div>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>
+function initApp(){
+if(typeof React==='undefined'||typeof ReactDOM==='undefined'){document.getElementById('root').innerHTML='<div style="text-align:center;padding:2rem">Error loading React</div>';return}
+var useState=React.useState,useRef=React.useRef,createRoot=ReactDOM.createRoot,ce=React.createElement;
 
-            function HL7Generator() {
-                const [uploadedOrder, setUploadedOrder] = useState(null);
-                const [generatedResult, setGeneratedResult] = useState('');
-                const [knownPatients, setKnownPatients] = useState([]);
-                const [currentModule, setCurrentModule] = useState('home');
-                const [selectedPatient, setSelectedPatient] = useState(null);
-                const [extractedFiles, setExtractedFiles] = useState([]);
-                const [previewFile, setPreviewFile] = useState(null);
-                const fileInputRef = useRef(null);
+/* ===== KNOWN TEST DATABASE ===== */
+var DB={
+UDS:[
+{c:'AMP',n:'Amphetamines Screen',gv:function(){return Math.random()>.85?Math.floor(Math.random()*800+600):Math.floor(Math.random()*400+10)},u:'ng/mL',r:'<500',gs:function(v){return parseInt(v)>=500?'A':'N'}},
+{c:'BAR',n:'Barbiturates Screen',gv:function(){return Math.random()>.9?Math.floor(Math.random()*200+250):Math.floor(Math.random()*150+5)},u:'ng/mL',r:'<200',gs:function(v){return parseInt(v)>=200?'A':'N'}},
+{c:'BZO',n:'Benzodiazepines Screen',gv:function(){return Math.random()>.8?Math.floor(Math.random()*400+350):Math.floor(Math.random()*250+5)},u:'ng/mL',r:'<300',gs:function(v){return parseInt(v)>=300?'A':'N'}},
+{c:'COC',n:'Cocaine Metabolite Screen',gv:function(){return Math.random()>.9?Math.floor(Math.random()*500+400):Math.floor(Math.random()*200+5)},u:'ng/mL',r:'<300',gs:function(v){return parseInt(v)>=300?'A':'N'}},
+{c:'THC',n:'Cannabinoids (THC) Screen',gv:function(){return Math.random()>.7?Math.floor(Math.random()*200+60):Math.floor(Math.random()*40+1)},u:'ng/mL',r:'<50',gs:function(v){return parseInt(v)>=50?'A':'N'}},
+{c:'OPI',n:'Opiates Screen',gv:function(){return Math.random()>.8?Math.floor(Math.random()*600+400):Math.floor(Math.random()*250+5)},u:'ng/mL',r:'<300',gs:function(v){return parseInt(v)>=300?'A':'N'}},
+{c:'PCP',n:'Phencyclidine Screen',gv:function(){return Math.random()>.95?Math.floor(Math.random()*30+30):Math.floor(Math.random()*20+1)},u:'ng/mL',r:'<25',gs:function(v){return parseInt(v)>=25?'A':'N'}},
+{c:'MTD',n:'Methadone Screen',gv:function(){return Math.random()>.85?Math.floor(Math.random()*400+350):Math.floor(Math.random()*250+5)},u:'ng/mL',r:'<300',gs:function(v){return parseInt(v)>=300?'A':'N'}},
+{c:'OXY',n:'Oxycodone Screen',gv:function(){return Math.random()>.8?Math.floor(Math.random()*200+120):Math.floor(Math.random()*80+5)},u:'ng/mL',r:'<100',gs:function(v){return parseInt(v)>=100?'A':'N'}},
+{c:'BUP',n:'Buprenorphine Screen',gv:function(){return Math.random()>.8?(Math.random()*10+6).toFixed(1):(Math.random()*4+0.5).toFixed(1)},u:'ng/mL',r:'<5',gs:function(v){return parseFloat(v)>=5?'A':'N'}},
+{c:'ETOH',n:'Ethanol Screen',gv:function(){return Math.random()>.85?(Math.random()*0.15+0.02).toFixed(3):'0.000'},u:'g/dL',r:'<0.010',gs:function(v){return parseFloat(v)>=0.01?'A':'N'}},
+{c:'FEN',n:'Fentanyl Screen',gv:function(){return Math.random()>.9?(Math.random()*5+3).toFixed(1):(Math.random()*1.5+0.1).toFixed(1)},u:'ng/mL',r:'<2',gs:function(v){return parseFloat(v)>=2?'A':'N'}},
+{c:'CREA',n:'Creatinine (Urine Validity)',gv:function(){return(Math.random()*250+20).toFixed(1)},u:'mg/dL',r:'20-300',gs:function(v){var n=parseFloat(v);return(n>=20&&n<=300)?'N':'A'}},
+{c:'PH',n:'pH (Urine Validity)',gv:function(){return(Math.random()*3+4.5).toFixed(1)},u:'',r:'4.5-9.0',gs:function(v){var n=parseFloat(v);return(n>=4.5&&n<=9)?'N':'A'}},
+{c:'SG',n:'Specific Gravity',gv:function(){return(Math.random()*0.020+1.003).toFixed(3)},u:'',r:'1.003-1.030',gs:function(v){var n=parseFloat(v);return(n>=1.003&&n<=1.030)?'N':'A'}},
+{c:'OXID',n:'Oxidants',gv:function(){return Math.random()>.95?'Abnormal':'Normal'},u:'',r:'Normal',gs:function(v){return v==='Normal'?'N':'A'}}
+],
+CBC:[
+{c:'WBC',n:'White Blood Count',gv:function(){return(Math.random()*7+4).toFixed(1)},u:'10*3/uL',r:'4.0-11.0',gs:function(v){var n=parseFloat(v);return(n>=4&&n<=11)?'N':'A'}},
+{c:'RBC',n:'Red Blood Count',gv:function(){return(Math.random()*1.5+3.5).toFixed(2)},u:'10*6/uL',r:'3.5-5.5',gs:function(v){var n=parseFloat(v);return(n>=3.5&&n<=5.5)?'N':'A'}},
+{c:'HGB',n:'Hemoglobin',gv:function(){return(Math.random()*5+11).toFixed(1)},u:'g/dL',r:'11.0-16.0',gs:function(v){var n=parseFloat(v);return(n>=11&&n<=16)?'N':'A'}},
+{c:'HCT',n:'Hematocrit',gv:function(){return(Math.random()*14+34).toFixed(1)},u:'%',r:'34-48',gs:function(v){var n=parseFloat(v);return(n>=34&&n<=48)?'N':'A'}},
+{c:'MCV',n:'Mean Corpuscular Volume',gv:function(){return(Math.random()*20+78).toFixed(1)},u:'fL',r:'78-100',gs:function(v){var n=parseFloat(v);return(n>=78&&n<=100)?'N':'A'}},
+{c:'PLT',n:'Platelet Count',gv:function(){return Math.floor(Math.random()*200+150).toString()},u:'10*3/uL',r:'150-400',gs:function(v){var n=parseInt(v);return(n>=150&&n<=400)?'N':'A'}}
+],
+CMP:[
+{c:'GLU',n:'Glucose',gv:function(){return Math.floor(Math.random()*40+65).toString()},u:'mg/dL',r:'65-100',gs:function(v){var n=parseInt(v);return(n>=65&&n<=100)?'N':'A'}},
+{c:'BUN',n:'Blood Urea Nitrogen',gv:function(){return Math.floor(Math.random()*18+6).toString()},u:'mg/dL',r:'6-24',gs:function(v){var n=parseInt(v);return(n>=6&&n<=24)?'N':'A'}},
+{c:'CREAT',n:'Creatinine',gv:function(){return(Math.random()*0.9+0.5).toFixed(2)},u:'mg/dL',r:'0.5-1.4',gs:function(v){var n=parseFloat(v);return(n>=0.5&&n<=1.4)?'N':'A'}},
+{c:'NA',n:'Sodium',gv:function(){return Math.floor(Math.random()*10+135).toString()},u:'mEq/L',r:'135-145',gs:function(v){var n=parseInt(v);return(n>=135&&n<=145)?'N':'A'}},
+{c:'K',n:'Potassium',gv:function(){return(Math.random()*1.5+3.5).toFixed(1)},u:'mEq/L',r:'3.5-5.0',gs:function(v){var n=parseFloat(v);return(n>=3.5&&n<=5)?'N':'A'}},
+{c:'CL',n:'Chloride',gv:function(){return Math.floor(Math.random()*10+96).toString()},u:'mEq/L',r:'96-106',gs:function(v){var n=parseInt(v);return(n>=96&&n<=106)?'N':'A'}},
+{c:'CO2',n:'Carbon Dioxide',gv:function(){return Math.floor(Math.random()*10+22).toString()},u:'mEq/L',r:'22-32',gs:function(v){var n=parseInt(v);return(n>=22&&n<=32)?'N':'A'}},
+{c:'CA',n:'Calcium',gv:function(){return(Math.random()*1.4+8.5).toFixed(1)},u:'mg/dL',r:'8.5-10.5',gs:function(v){var n=parseFloat(v);return(n>=8.5&&n<=10.5)?'N':'A'}},
+{c:'TP',n:'Total Protein',gv:function(){return(Math.random()*2+6).toFixed(1)},u:'g/dL',r:'6.0-8.3',gs:function(v){var n=parseFloat(v);return(n>=6&&n<=8.3)?'N':'A'}},
+{c:'ALB',n:'Albumin',gv:function(){return(Math.random()*1.2+3.2).toFixed(1)},u:'g/dL',r:'3.2-4.8',gs:function(v){var n=parseFloat(v);return(n>=3.2&&n<=4.8)?'N':'A'}},
+{c:'TBIL',n:'Total Bilirubin',gv:function(){return(Math.random()*0.9+0.1).toFixed(1)},u:'mg/dL',r:'0.1-1.2',gs:function(v){var n=parseFloat(v);return(n>=0.1&&n<=1.2)?'N':'A'}},
+{c:'ALP',n:'Alkaline Phosphatase',gv:function(){return Math.floor(Math.random()*80+40).toString()},u:'U/L',r:'40-120',gs:function(v){var n=parseInt(v);return(n>=40&&n<=120)?'N':'A'}},
+{c:'AST',n:'AST (SGOT)',gv:function(){return Math.floor(Math.random()*25+10).toString()},u:'U/L',r:'10-40',gs:function(v){var n=parseInt(v);return(n>=10&&n<=40)?'N':'A'}},
+{c:'ALT',n:'ALT (SGPT)',gv:function(){return Math.floor(Math.random()*30+7).toString()},u:'U/L',r:'7-56',gs:function(v){var n=parseInt(v);return(n>=7&&n<=56)?'N':'A'}}
+],
+LIPID:[
+{c:'CHOL',n:'Total Cholesterol',gv:function(){return Math.floor(Math.random()*100+140).toString()},u:'mg/dL',r:'<200',gs:function(v){return parseInt(v)<200?'N':'H'}},
+{c:'TRIG',n:'Triglycerides',gv:function(){return Math.floor(Math.random()*120+50).toString()},u:'mg/dL',r:'<150',gs:function(v){return parseInt(v)<150?'N':'H'}},
+{c:'HDL',n:'HDL Cholesterol',gv:function(){return Math.floor(Math.random()*40+35).toString()},u:'mg/dL',r:'>40',gs:function(v){return parseInt(v)>40?'N':'L'}},
+{c:'LDL',n:'LDL Cholesterol',gv:function(){return Math.floor(Math.random()*80+70).toString()},u:'mg/dL',r:'<100',gs:function(v){return parseInt(v)<100?'N':'H'}},
+{c:'VLDL',n:'VLDL Cholesterol',gv:function(){return Math.floor(Math.random()*20+10).toString()},u:'mg/dL',r:'5-40',gs:function(v){var n=parseInt(v);return(n>=5&&n<=40)?'N':'A'}}
+],
+TSH:[{c:'TSH',n:'Thyroid Stimulating Hormone',gv:function(){return(Math.random()*3.5+0.4).toFixed(2)},u:'mIU/L',r:'0.4-4.0',gs:function(v){var n=parseFloat(v);return(n>=0.4&&n<=4)?'N':'A'}}],
+THYROID:[
+{c:'TSH',n:'Thyroid Stimulating Hormone',gv:function(){return(Math.random()*3.5+0.4).toFixed(2)},u:'mIU/L',r:'0.4-4.0',gs:function(v){var n=parseFloat(v);return(n>=0.4&&n<=4)?'N':'A'}},
+{c:'FT4',n:'Free T4',gv:function(){return(Math.random()*0.9+0.8).toFixed(2)},u:'ng/dL',r:'0.8-1.8',gs:function(v){var n=parseFloat(v);return(n>=0.8&&n<=1.8)?'N':'A'}},
+{c:'FT3',n:'Free T3',gv:function(){return(Math.random()*2+2).toFixed(1)},u:'pg/mL',r:'2.0-4.4',gs:function(v){var n=parseFloat(v);return(n>=2&&n<=4.4)?'N':'A'}}
+],
+HEPATIC:[
+{c:'AST',n:'AST (SGOT)',gv:function(){return Math.floor(Math.random()*25+10).toString()},u:'U/L',r:'10-40',gs:function(v){var n=parseInt(v);return(n>=10&&n<=40)?'N':'A'}},
+{c:'ALT',n:'ALT (SGPT)',gv:function(){return Math.floor(Math.random()*30+7).toString()},u:'U/L',r:'7-56',gs:function(v){var n=parseInt(v);return(n>=7&&n<=56)?'N':'A'}},
+{c:'ALP',n:'Alkaline Phosphatase',gv:function(){return Math.floor(Math.random()*80+40).toString()},u:'U/L',r:'40-120',gs:function(v){var n=parseInt(v);return(n>=40&&n<=120)?'N':'A'}},
+{c:'TBIL',n:'Total Bilirubin',gv:function(){return(Math.random()*0.9+0.1).toFixed(1)},u:'mg/dL',r:'0.1-1.2',gs:function(v){var n=parseFloat(v);return(n>=0.1&&n<=1.2)?'N':'A'}},
+{c:'ALB',n:'Albumin',gv:function(){return(Math.random()*1.2+3.2).toFixed(1)},u:'g/dL',r:'3.2-4.8',gs:function(v){var n=parseFloat(v);return(n>=3.2&&n<=4.8)?'N':'A'}}
+],
+UA:[
+{c:'COLOR',n:'Urine Color',gv:function(){var x=['Yellow','Light Yellow','Dark Yellow','Amber'];return x[Math.floor(Math.random()*x.length)]},u:'',r:'Yellow',gs:function(){return'N'}},
+{c:'CLARITY',n:'Urine Clarity',gv:function(){var x=['Clear','Slightly Cloudy','Cloudy'];return x[Math.floor(Math.random()*x.length)]},u:'',r:'Clear',gs:function(v){return v==='Clear'?'N':'A'}},
+{c:'SG',n:'Specific Gravity',gv:function(){return(Math.random()*0.020+1.003).toFixed(3)},u:'',r:'1.003-1.030',gs:function(v){var n=parseFloat(v);return(n>=1.003&&n<=1.030)?'N':'A'}},
+{c:'PH',n:'pH',gv:function(){return(Math.random()*3+5).toFixed(1)},u:'',r:'5.0-8.0',gs:function(v){var n=parseFloat(v);return(n>=5&&n<=8)?'N':'A'}},
+{c:'PROT',n:'Protein',gv:function(){return Math.random()>.9?'Trace':'Negative'},u:'',r:'Negative',gs:function(v){return v==='Negative'?'N':'A'}},
+{c:'GLUC',n:'Glucose (Urine)',gv:function(){return Math.random()>.9?'Trace':'Negative'},u:'',r:'Negative',gs:function(v){return v==='Negative'?'N':'A'}},
+{c:'BLOOD',n:'Blood',gv:function(){return Math.random()>.9?'Trace':'Negative'},u:'',r:'Negative',gs:function(v){return v==='Negative'?'N':'A'}}
+],
+A1C:[
+{c:'HBA1C',n:'Hemoglobin A1c',gv:function(){return(Math.random()*3+4.5).toFixed(1)},u:'%',r:'<5.7',gs:function(v){return parseFloat(v)<5.7?'N':'H'}},
+{c:'eAG',n:'Estimated Average Glucose',gv:function(){return Math.floor(Math.random()*60+80).toString()},u:'mg/dL',r:'70-126',gs:function(v){var n=parseInt(v);return(n>=70&&n<=126)?'N':'A'}}
+],
+VITD:[{c:'VITD25',n:'Vitamin D, 25-Hydroxy',gv:function(){return(Math.random()*50+15).toFixed(1)},u:'ng/mL',r:'30-100',gs:function(v){var n=parseFloat(v);return(n>=30&&n<=100)?'N':'A'}}],
+PSA:[{c:'PSA',n:'Prostate Specific Antigen',gv:function(){return(Math.random()*3+0.2).toFixed(2)},u:'ng/mL',r:'<4.0',gs:function(v){return parseFloat(v)<4?'N':'H'}}],
+IRON:[
+{c:'FE',n:'Iron',gv:function(){return Math.floor(Math.random()*100+40).toString()},u:'ug/dL',r:'40-170',gs:function(v){var n=parseInt(v);return(n>=40&&n<=170)?'N':'A'}},
+{c:'TIBC',n:'Total Iron Binding Capacity',gv:function(){return Math.floor(Math.random()*150+250).toString()},u:'ug/dL',r:'250-400',gs:function(v){var n=parseInt(v);return(n>=250&&n<=400)?'N':'A'}},
+{c:'FERR',n:'Ferritin',gv:function(){return Math.floor(Math.random()*200+20).toString()},u:'ng/mL',r:'20-300',gs:function(v){var n=parseInt(v);return(n>=20&&n<=300)?'N':'A'}}
+],
+BMP:[
+{c:'GLU',n:'Glucose',gv:function(){return Math.floor(Math.random()*40+65).toString()},u:'mg/dL',r:'65-100',gs:function(v){var n=parseInt(v);return(n>=65&&n<=100)?'N':'A'}},
+{c:'BUN',n:'Blood Urea Nitrogen',gv:function(){return Math.floor(Math.random()*18+6).toString()},u:'mg/dL',r:'6-24',gs:function(v){var n=parseInt(v);return(n>=6&&n<=24)?'N':'A'}},
+{c:'CREAT',n:'Creatinine',gv:function(){return(Math.random()*0.9+0.5).toFixed(2)},u:'mg/dL',r:'0.5-1.4',gs:function(v){var n=parseFloat(v);return(n>=0.5&&n<=1.4)?'N':'A'}},
+{c:'NA',n:'Sodium',gv:function(){return Math.floor(Math.random()*10+135).toString()},u:'mEq/L',r:'135-145',gs:function(v){var n=parseInt(v);return(n>=135&&n<=145)?'N':'A'}},
+{c:'K',n:'Potassium',gv:function(){return(Math.random()*1.5+3.5).toFixed(1)},u:'mEq/L',r:'3.5-5.0',gs:function(v){var n=parseFloat(v);return(n>=3.5&&n<=5)?'N':'A'}}
+]
+};
 
-                function generateESTDateTime() {
-                    const now = new Date();
-                    const estOffset = -5;
-                    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                    const est = new Date(utc + (estOffset * 3600000));
-                    const year = est.getFullYear();
-                    const month = String(est.getMonth() + 1).padStart(2, '0');
-                    const day = String(est.getDate()).padStart(2, '0');
-                    const hours = String(est.getHours()).padStart(2, '0');
-                    const minutes = String(est.getMinutes()).padStart(2, '0');
-                    const seconds = String(est.getSeconds()).padStart(2, '0');
-                    return year + month + day + hours + minutes + seconds;
-                }
+/* Alias map */
+var ALIAS={'URINE DRUG SCREEN':'UDS','DRUG SCREEN':'UDS','DRUG SCREEN, URINE':'UDS','UDS SCREEN':'UDS','URINE TOX':'UDS','UTOX':'UDS','TOX SCREEN':'UDS','COMPLETE BLOOD COUNT':'CBC','CBC W/DIFF':'CBC','CBC WITH DIFF':'CBC','CBC001':'CBC','COMPREHENSIVE METABOLIC PANEL':'CMP','CMP001':'CMP','BASIC METABOLIC PANEL':'BMP','LIPID PANEL':'LIPID','LIPID001':'LIPID','LIPID PROFILE':'LIPID','THYROID PANEL':'THYROID','LIVER PANEL':'HEPATIC','HEPATIC PANEL':'HEPATIC','LIVER FUNCTION':'HEPATIC','LFT':'HEPATIC','URINALYSIS':'UA','HBA1C':'A1C','HEMOGLOBIN A1C':'A1C','GLYCATED HEMOGLOBIN':'A1C','VITAMIN D':'VITD','25-HYDROXY VITAMIN D':'VITD','IRON PANEL':'IRON','IRON STUDIES':'IRON','PSA SCREEN':'PSA'};
 
-                function extractEmbeddedFiles(hl7Content) {
-                    const files = [];
-                    let lines = hl7Content.split(/\r?\n/).filter(l => l.trim());
-                    if (lines.length === 1) {
-                        const segs = lines[0].split(/(MSH|PID|PV1|IN1|IN2|GT1|ORC|OBR|OBX|NTE|DG1)/).filter(Boolean);
-                        lines = [];
-                        for (let i = 0; i < segs.length; i += 2) { if (segs[i] && segs[i+1]) lines.push(segs[i] + segs[i+1]); }
-                    }
-                    lines.filter(l => l.startsWith('OBX')).forEach((obx, idx) => {
-                        const f = obx.split('|');
-                        const dt = f[2] || '', obsId = f[3] || '', val = f[5] || '';
-                        const obsIdParts = obsId.split('^');
-                        let mimeHint = obsIdParts.length > 1 ? obsIdParts[1].toLowerCase() : '';
-                        function detectType(b64) {
-                            try {
-                                const dec = atob(b64.substring(0, 30));
-                                if (dec.startsWith('%PDF')) return { mime: 'application/pdf', ext: 'pdf', label: 'PDF Document' };
-                                if (dec.charCodeAt(0) === 0xFF && dec.charCodeAt(1) === 0xD8) return { mime: 'image/jpeg', ext: 'jpg', label: 'JPG Image' };
-                                if (dec.substring(1, 4) === 'PNG') return { mime: 'image/png', ext: 'png', label: 'PNG Image' };
-                                if (dec.substring(0, 4) === 'GIF8') return { mime: 'image/gif', ext: 'gif', label: 'GIF Image' };
-                            } catch(e) {}
-                            if (mimeHint.includes('jpg') || mimeHint.includes('jpeg')) return { mime: 'image/jpeg', ext: 'jpg', label: 'JPG Image' };
-                            if (mimeHint.includes('png')) return { mime: 'image/png', ext: 'png', label: 'PNG Image' };
-                            if (mimeHint.includes('pdf')) return { mime: 'application/pdf', ext: 'pdf', label: 'PDF Document' };
-                            if (mimeHint.includes('gif')) return { mime: 'image/gif', ext: 'gif', label: 'GIF Image' };
-                            return { mime: 'application/octet-stream', ext: 'bin', label: 'Binary File' };
-                        }
-                        if (dt === 'ED' && val.length > 100) {
-                            const parts = val.split('^');
-                            let b64 = parts.length >= 4 ? parts.slice(3).join('^') : parts[parts.length-1];
-                            b64 = b64.replace(/[\r\n\s]/g, '');
-                            if (b64.length > 100) { const fileType = detectType(b64); files.push({ idx: idx+1, segIdx: f[1]||String(idx+1), type: dt, b64, size: Math.round(b64.length*3/4/1024), ...fileType }); }
-                        } else if (dt === 'ST' && val.length > 500) {
-                            const clean = val.replace(/[\r\n\s]/g, '');
-                            if (/^[A-Za-z0-9+/]+=*$/.test(clean) || clean.startsWith('/9j/')) { const fileType = detectType(clean); files.push({ idx: idx+1, segIdx: f[1]||String(idx+1), type: 'ST (Base64)', b64: clean, size: Math.round(clean.length*3/4/1024), ...fileType }); }
-                        } else if (dt === 'TX' && val.length > 500) {
-                            const clean = val.replace(/[\r\n\s]/g, '');
-                            if (/^[A-Za-z0-9+/]+=*$/.test(clean)) { const fileType = detectType(clean); files.push({ idx: idx+1, segIdx: f[1]||String(idx+1), type: 'TX (Base64)', b64: clean, size: Math.round(clean.length*3/4/1024), ...fileType }); }
-                        }
-                    });
-                    return files;
-                }
+function lookupTest(code,name){
+    var c=(code||'').toUpperCase().trim(),nm=(name||'').toUpperCase().trim();
+    function res(k){var a=ALIAS[k];if(a&&DB[a])return DB[a];if(DB[k])return DB[k];return null}
+    var f=res(c)||res(nm);
+    if(f)return f;
+    var keys=Object.keys(DB).concat(Object.keys(ALIAS));
+    for(var i=0;i<keys.length;i++){var k=keys[i];if(c.indexOf(k)>=0||nm.indexOf(k)>=0||k.indexOf(c)>=0||(nm&&k.indexOf(nm)>=0)){f=res(k);if(f)return f}}
+    return null;
+}
 
-                function downloadFile(file) {
-                    try {
-                        const bytes = atob(file.b64);
-                        const arr = new Uint8Array(bytes.length);
-                        for (let j = 0; j < bytes.length; j++) arr[j] = bytes.charCodeAt(j);
-                        const blob = new Blob([arr], { type: file.mime });
-                        const a = document.createElement('a');
-                        a.href = URL.createObjectURL(blob);
-                        a.download = 'HL7_' + file.label.replace(/ /g, '_') + '_' + file.segIdx + '.' + file.ext;
-                        a.click();
-                        URL.revokeObjectURL(a.href);
-                    } catch(e) { alert('Error downloading: ' + e.message); }
-                }
+function genResults(code,name){
+    var tpl=lookupTest(code,name);
+    if(tpl)return tpl.map(function(t){var v=String(t.gv());return{code:t.c,name:t.n,value:v,unit:t.u,range:t.r,status:t.gs(v)}});
+    var v=(Math.random()*80+10).toFixed(1);
+    return[{code:code||'RESULT',name:name||'Test Result',value:v,unit:'units',range:'10-90',status:(parseFloat(v)>=10&&parseFloat(v)<=90)?'N':'A'}];
+}
 
-                function generateRandomTests() {
-                    const availableTests = [
-                        { code: 'CBC001', name: 'Complete Blood Count', results: [
-                            { code: 'WBC', name: 'White Blood Count', value: (Math.random() * 7 + 4).toFixed(1), unit: '10*3/uL', range: '4.0-11.0', status: 'N' },
-                            { code: 'RBC', name: 'Red Blood Count', value: (Math.random() * 1.5 + 3.5).toFixed(1), unit: '10*6/uL', range: '3.5-5.0', status: 'N' },
-                            { code: 'HGB', name: 'Hemoglobin', value: (Math.random() * 4 + 12).toFixed(1), unit: 'g/dL', range: '12.0-16.0', status: 'N' }
-                        ]},
-                        { code: 'CMP001', name: 'Comprehensive Metabolic Panel', results: [
-                            { code: 'GLU', name: 'Glucose', value: Math.floor(Math.random() * 30 + 70).toString(), unit: 'mg/dL', range: '70-100', status: 'N' },
-                            { code: 'BUN', name: 'Blood Urea Nitrogen', value: Math.floor(Math.random() * 15 + 7).toString(), unit: 'mg/dL', range: '7-22', status: 'N' },
-                            { code: 'CREAT', name: 'Creatinine', value: (Math.random() * 0.8 + 0.6).toFixed(2), unit: 'mg/dL', range: '0.6-1.4', status: 'N' }
-                        ]},
-                        { code: 'LIPID001', name: 'Lipid Panel', results: [
-                            { code: 'CHOL', name: 'Total Cholesterol', value: Math.floor(Math.random() * 100 + 150).toString(), unit: 'mg/dL', range: '<200', status: 'N' },
-                            { code: 'HDL', name: 'HDL Cholesterol', value: Math.floor(Math.random() * 40 + 35).toString(), unit: 'mg/dL', range: '>40', status: 'N' },
-                            { code: 'LDL', name: 'LDL Cholesterol', value: Math.floor(Math.random() * 70 + 80).toString(), unit: 'mg/dL', range: '<100', status: 'N' }
-                        ]}
-                    ];
-                    const numTests = Math.floor(Math.random() * 3) + 1;
-                    const selectedTests = [];
-                    const usedIndices = new Set();
-                    while (selectedTests.length < numTests && selectedTests.length < availableTests.length) {
-                        const index = Math.floor(Math.random() * availableTests.length);
-                        if (!usedIndices.has(index)) { usedIndices.add(index); selectedTests.push({ ...availableTests[index], sequence: selectedTests.length + 1 }); }
-                    }
-                    return selectedTests;
-                }
+function HL7Generator(){
+    var s=useState,r=useRef;
+    var _uo=s(null),uploadedOrder=_uo[0],setUploadedOrder=_uo[1];
+    var _gr=s(''),generatedResult=_gr[0],setGeneratedResult=_gr[1];
+    var _kp=s([]),knownPatients=_kp[0],setKnownPatients=_kp[1];
+    var _cm=s('home'),currentModule=_cm[0],setCurrentModule=_cm[1];
+    var _sp=s(null),selectedPatient=_sp[0],setSelectedPatient=_sp[1];
+    var _ef=s([]),extractedFiles=_ef[0],setExtractedFiles=_ef[1];
+    var _pf=s(null),previewFile=_pf[0],setPreviewFile=_pf[1];
+    var fileInputRef=r(null);
 
-                function parseHL7Order(hl7Content) {
-                    try {
-                        const files = extractEmbeddedFiles(hl7Content);
-                        setExtractedFiles(files);
-                        let lines = hl7Content.split(/\r?\n/).filter(line => line.trim());
-                        if (lines.length === 1) {
-                            const singleLine = lines[0];
-                            const segments = singleLine.split(/(MSH|PID|PV1|IN1|IN2|GT1|ORC|OBR|DG1)/).filter(Boolean);
-                            lines = [];
-                            for (let i = 0; i < segments.length; i += 2) { if (segments[i] && segments[i + 1]) { lines.push(segments[i] + segments[i + 1]); } }
-                        }
-                        const pidSegment = lines.find(line => line.startsWith('PID'));
-                        const mshSegment = lines.find(line => line.startsWith('MSH'));
-                        const pv1Segment = lines.find(line => line.startsWith('PV1'));
-                        const in1Segment = lines.find(line => line.startsWith('IN1'));
-                        const orcSegments = lines.filter(line => line.startsWith('ORC'));
-                        const obrSegments = lines.filter(line => line.startsWith('OBR'));
+    function genEST(){var now=new Date(),utc=now.getTime()+(now.getTimezoneOffset()*60000),est=new Date(utc+(-5*3600000));return est.getFullYear()+String(est.getMonth()+1).padStart(2,'0')+String(est.getDate()).padStart(2,'0')+String(est.getHours()).padStart(2,'0')+String(est.getMinutes()).padStart(2,'0')+String(est.getSeconds()).padStart(2,'0')}
 
-                        let patientInfo = { mrn: 'Unknown', lastName: 'Unknown', firstName: 'Patient', middleName: '', birthDate: '19900101', gender: 'U', address1: 'Unknown', city: 'Unknown', state: 'XX', zip: '00000', phoneHome: '(000) 000-0000', phoneBusiness: '(000) 000-0000', race: 'White', maritalStatus: 'U', ssn: 'N/A', accountNumber: 'N/A' };
-                        if (pidSegment) {
-                            const fields = pidSegment.split('|');
-                            if (fields.length > 5) {
-                                const nameField = fields[5] || '';
-                                const nameParts = nameField.split('^');
-                                const addressField = fields[11] || '';
-                                const addressParts = addressField.split('^');
-                                const phoneField = fields[13] || '';
-                                const businessPhoneField = fields[14] || '';
-                                patientInfo = { mrn: fields[3] || 'Unknown', lastName: nameParts[0] || 'Unknown', firstName: nameParts[1] || 'Patient', middleName: nameParts[2] || '', birthDate: fields[7] || '19900101', gender: fields[8] || 'U', address1: addressParts[0] || 'Unknown', city: addressParts[2] || 'Unknown', state: addressParts[3] || 'XX', zip: addressParts[4] || '00000', phoneHome: phoneField || '(000) 000-0000', phoneBusiness: businessPhoneField || '(000) 000-0000', race: 'White', maritalStatus: fields[16] || 'U', ssn: fields[19] || 'N/A', accountNumber: fields[18] || 'N/A' };
-                            }
-                        }
+    function extractFiles(hl7){
+        var files=[],lines=hl7.split(/\r?\n/).filter(function(l){return l.trim()});
+        if(lines.length===1){var segs=lines[0].split(/(MSH|PID|PV1|IN1|IN2|GT1|ORC|OBR|OBX|NTE|DG1)/).filter(Boolean);lines=[];for(var i=0;i<segs.length;i+=2)if(segs[i]&&segs[i+1])lines.push(segs[i]+segs[i+1])}
+        lines.filter(function(l){return l.startsWith('OBX')}).forEach(function(obx,idx){
+            var f=obx.split('|'),dt=f[2]||'',obsId=f[3]||'',val=f[5]||'',obsIdParts=obsId.split('^'),mimeHint=obsIdParts.length>1?obsIdParts[1].toLowerCase():'';
+            function det(b64){try{var d=atob(b64.substring(0,30));if(d.startsWith('%PDF'))return{mime:'application/pdf',ext:'pdf',label:'PDF Document'};if(d.charCodeAt(0)===0xFF&&d.charCodeAt(1)===0xD8)return{mime:'image/jpeg',ext:'jpg',label:'JPG Image'};if(d.substring(1,4)==='PNG')return{mime:'image/png',ext:'png',label:'PNG Image'};if(d.substring(0,4)==='GIF8')return{mime:'image/gif',ext:'gif',label:'GIF Image'}}catch(e){}if(mimeHint.includes('jpg')||mimeHint.includes('jpeg'))return{mime:'image/jpeg',ext:'jpg',label:'JPG Image'};if(mimeHint.includes('png'))return{mime:'image/png',ext:'png',label:'PNG Image'};if(mimeHint.includes('pdf'))return{mime:'application/pdf',ext:'pdf',label:'PDF Document'};return{mime:'application/octet-stream',ext:'bin',label:'Binary File'}}
+            if(dt==='ED'&&val.length>100){var parts=val.split('^'),b64=parts.length>=4?parts.slice(3).join('^'):parts[parts.length-1];b64=b64.replace(/[\r\n\s]/g,'');if(b64.length>100){var ft=det(b64);files.push({idx:idx+1,segIdx:f[1]||String(idx+1),type:dt,b64:b64,size:Math.round(b64.length*3/4/1024),mime:ft.mime,ext:ft.ext,label:ft.label})}}
+            else if(dt==='ST'&&val.length>500){var clean=val.replace(/[\r\n\s]/g,'');if(/^[A-Za-z0-9+/]+=*$/.test(clean)||clean.startsWith('/9j/')){var ft=det(clean);files.push({idx:idx+1,segIdx:f[1]||String(idx+1),type:'ST (Base64)',b64:clean,size:Math.round(clean.length*3/4/1024),mime:ft.mime,ext:ft.ext,label:ft.label})}}
+            else if(dt==='TX'&&val.length>500){var clean=val.replace(/[\r\n\s]/g,'');if(/^[A-Za-z0-9+/]+=*$/.test(clean)){var ft=det(clean);files.push({idx:idx+1,segIdx:f[1]||String(idx+1),type:'TX (Base64)',b64:clean,size:Math.round(clean.length*3/4/1024),mime:ft.mime,ext:ft.ext,label:ft.label})}}
+        });return files;
+    }
 
-                        let orderInfo = { orderNumber: 'UNKNOWN', sendingApp: 'LightningStep', sendingFacility: '73929332', receivingApp: 'ClinicalLabs', receivingFacility: 'LABLIS', orderDateTime: generateESTDateTime(), controlId: 'UNKNOWN', messageType: 'ORM^O01', processingId: 'P', hl7Version: '2.3.1', physicianNPI: 'Unknown', physicianFirstName: 'Unknown', physicianLastName: 'Unknown' };
-                        if (mshSegment) {
-                            const fields = mshSegment.split('|');
-                            orderInfo = { ...orderInfo, sendingApp: fields[3] || 'LightningStep', sendingFacility: fields[4] || '73929332', receivingApp: fields[5] || 'ClinicalLabs', receivingFacility: fields[6] || 'LABLIS', orderDateTime: fields[7] || generateESTDateTime(), messageType: fields[9] || 'ORM^O01', controlId: fields[10] || 'UNKNOWN', processingId: fields[11] || 'P', hl7Version: fields[12] || '2.3.1' };
-                        }
-                        if (orcSegments.length > 0) {
-                            const orcFields = orcSegments[0].split('|');
-                            orderInfo.orderControl = orcFields[1] || 'NW';
-                            orderInfo.placerOrderNumber = orcFields[2] || 'UNKNOWN';
-                            orderInfo.fillerOrderNumber = orcFields[3] || 'UNKNOWN';
-                            orderInfo.orderNumber = orcFields[2] || orcFields[3] || 'UNKNOWN';
-                            orderInfo.orderStatus = orcFields[5] || 'N/A';
-                            orderInfo.transactionDateTime = orcFields[9] || 'N/A';
-                            orderInfo.enteredBy = orcFields[10] || 'N/A';
-                            orderInfo.orderingProvider = orcFields[12] || 'N/A';
-                        }
+    function dlFile(file){try{var bytes=atob(file.b64),arr=new Uint8Array(bytes.length);for(var j=0;j<bytes.length;j++)arr[j]=bytes.charCodeAt(j);var blob=new Blob([arr],{type:file.mime}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='HL7_'+file.label.replace(/ /g,'_')+'_'+file.segIdx+'.'+file.ext;a.click();URL.revokeObjectURL(a.href)}catch(e){alert('Error: '+e.message)}}
 
-                        let visitInfo = { patientClass: 'O', assignedLocation: '^^^&', visitNumber: Math.floor(Math.random() * 999) + 1 };
-                        if (pv1Segment) {
-                            const fields = pv1Segment.split('|');
-                            visitInfo = { patientClass: fields[2] || 'O', assignedLocation: fields[3] || '^^^&', visitNumber: fields[19] || Math.floor(Math.random() * 999) + 1 };
-                        }
+    function genRandomTests(){
+        var avail=[
+            {code:'CBC001',name:'Complete Blood Count',results:genResults('CBC','Complete Blood Count')},
+            {code:'CMP001',name:'Comprehensive Metabolic Panel',results:genResults('CMP','Comprehensive Metabolic Panel')},
+            {code:'LIPID001',name:'Lipid Panel',results:genResults('LIPID','Lipid Panel')}
+        ];
+        var num=Math.floor(Math.random()*3)+1,sel=[],used=new Set();
+        while(sel.length<num&&sel.length<avail.length){var idx=Math.floor(Math.random()*avail.length);if(!used.has(idx)){used.add(idx);sel.push(Object.assign({},avail[idx],{sequence:sel.length+1}))}}
+        return sel;
+    }
 
-                        let insuranceInfo = {};
-                        if (in1Segment) {
-                            const fields = in1Segment.split('|');
-                            insuranceInfo = { planId: fields[2] || 'N/A', companyName: fields[4] || 'N/A', policyNumber: fields[36] || 'N/A', groupNumber: fields[8] || 'N/A' };
-                        }
+    function parseHL7(hl7){
+        try{
+            var files=extractFiles(hl7);setExtractedFiles(files);
+            var lines=hl7.split(/\r?\n/).filter(function(l){return l.trim()});
+            if(lines.length===1){var segs=lines[0].split(/(MSH|PID|PV1|IN1|IN2|GT1|ORC|OBR|DG1)/).filter(Boolean);lines=[];for(var i=0;i<segs.length;i+=2)if(segs[i]&&segs[i+1])lines.push(segs[i]+segs[i+1])}
+            var pid=lines.find(function(l){return l.startsWith('PID')}),msh=lines.find(function(l){return l.startsWith('MSH')}),pv1=lines.find(function(l){return l.startsWith('PV1')}),in1=lines.find(function(l){return l.startsWith('IN1')}),orcs=lines.filter(function(l){return l.startsWith('ORC')}),obrs=lines.filter(function(l){return l.startsWith('OBR')});
+            var pi={mrn:'Unknown',lastName:'Unknown',firstName:'Patient',middleName:'',birthDate:'19900101',gender:'U',address1:'Unknown',city:'Unknown',state:'XX',zip:'00000',phoneHome:'(000) 000-0000',phoneBusiness:'(000) 000-0000',race:'White',maritalStatus:'U',ssn:'N/A',accountNumber:'N/A'};
+            if(pid){var f=pid.split('|');if(f.length>5){var np=(f[5]||'').split('^'),ap=(f[11]||'').split('^');pi={mrn:f[3]||'Unknown',lastName:np[0]||'Unknown',firstName:np[1]||'Patient',middleName:np[2]||'',birthDate:f[7]||'19900101',gender:f[8]||'U',address1:ap[0]||'Unknown',city:ap[2]||'Unknown',state:ap[3]||'XX',zip:ap[4]||'00000',phoneHome:f[13]||'(000) 000-0000',phoneBusiness:f[14]||'(000) 000-0000',race:'White',maritalStatus:f[16]||'U',ssn:f[19]||'N/A',accountNumber:f[18]||'N/A'}}}
+            var oi={orderNumber:'UNKNOWN',sendingApp:'LightningStep',sendingFacility:'73929332',receivingApp:'ClinicalLabs',receivingFacility:'LABLIS',orderDateTime:genEST(),controlId:'UNKNOWN',messageType:'ORM^O01',processingId:'P',hl7Version:'2.3.1',physicianNPI:'Unknown',physicianFirstName:'Unknown',physicianLastName:'Unknown'};
+            if(msh){var f=msh.split('|');oi=Object.assign({},oi,{sendingApp:f[3]||'LightningStep',sendingFacility:f[4]||'73929332',receivingApp:f[5]||'ClinicalLabs',receivingFacility:f[6]||'LABLIS',orderDateTime:f[7]||genEST(),messageType:f[9]||'ORM^O01',controlId:f[10]||'UNKNOWN',processingId:f[11]||'P',hl7Version:f[12]||'2.3.1'})}
+            if(orcs.length>0){var f=orcs[0].split('|');oi.orderControl=f[1]||'NW';oi.placerOrderNumber=f[2]||'UNKNOWN';oi.fillerOrderNumber=f[3]||'UNKNOWN';oi.orderNumber=f[2]||f[3]||'UNKNOWN';oi.orderStatus=f[5]||'N/A';oi.transactionDateTime=f[9]||'N/A';oi.enteredBy=f[10]||'N/A';oi.orderingProvider=f[12]||'N/A'}
+            var vi={patientClass:'O',assignedLocation:'^^^&',visitNumber:Math.floor(Math.random()*999)+1};
+            if(pv1){var f=pv1.split('|');vi={patientClass:f[2]||'O',assignedLocation:f[3]||'^^^&',visitNumber:f[19]||Math.floor(Math.random()*999)+1}}
+            var ii={};if(in1){var f=in1.split('|');ii={planId:f[2]||'N/A',companyName:f[4]||'N/A',policyNumber:f[36]||'N/A',groupNumber:f[8]||'N/A'}}
+            var labTests=obrs.length>0?obrs.map(function(obr,index){
+                var f=obr.split('|'),ti=f[4]||'',tp=ti.split('^'),ph=f[16]||'',pp=ph.split('^');
+                if(index===0&&ph){oi.physicianNPI=pp[0]||'Unknown';oi.physicianLastName=pp[1]||'Unknown';oi.physicianFirstName=pp[2]||'Unknown'}
+                var tCode=tp[0]||'UNKNOWN_CODE_'+(index+1),tName=tp[1]||'Unknown Test '+(index+1);
+                return{sequence:index+1,code:tCode,name:tName,priority:f[5]||'R',requestedDateTime:f[6]||genEST(),collectionDateTime:f[7]||genEST(),orderStatus:f[25]||'A',specimenSource:f[15]||'Unknown',orderingProvider:f[16]||'N/A',results:genResults(tCode,tName)};
+            }):genRandomTests();
+            console.log('Parsed HL7 - Tests:',labTests.map(function(t){return t.code+': '+t.name+' ('+t.results.length+' results)'}));
+            return{success:true,patientInfo:pi,orderInfo:oi,visitInfo:vi,insuranceInfo:ii,labTests:labTests,originalHL7:hl7,embeddedFiles:files};
+        }catch(e){return{success:false,error:e.message}}
+    }
 
-                        const labTests = obrSegments.length > 0 ? obrSegments.map((obr, index) => {
-                            const fields = obr.split('|');
-                            const testInfo = fields[4] || '';
-                            const testParts = testInfo.split('^');
-                            const physicianInfo = fields[16] || '';
-                            const physicianParts = physicianInfo.split('^');
-                            if (index === 0 && physicianInfo) {
-                                orderInfo.physicianNPI = physicianParts[0] || 'Unknown';
-                                orderInfo.physicianLastName = physicianParts[1] || 'Unknown';
-                                orderInfo.physicianFirstName = physicianParts[2] || 'Unknown';
-                            }
-                            return { sequence: index + 1, code: testParts[0] || 'UNKNOWN_CODE_' + (index + 1), name: testParts[1] || 'Unknown Test ' + (index + 1), priority: fields[5] || 'R', requestedDateTime: fields[6] || generateESTDateTime(), collectionDateTime: fields[7] || generateESTDateTime(), orderStatus: fields[25] || 'A', specimenSource: fields[15] || 'Unknown', orderingProvider: fields[16] || 'N/A', results: testParts[1] ? [{ code: testParts[0] || 'RESULT', name: testParts[1] || 'Test Result', value: 'Pending', unit: 'N/A', range: 'N/A', status: 'P' }] : generateRandomTests()[0].results };
-                        }) : generateRandomTests();
-
-                        console.log('Parsed HL7 - Order Number:', orderInfo.orderNumber);
-                        console.log('Parsed HL7 - Lab Tests:', labTests.map(t => t.code + ': ' + t.name));
-                        console.log('Parsed HL7 - Embedded Files:', files.length);
-
-                        return { success: true, patientInfo: patientInfo, orderInfo: orderInfo, visitInfo: visitInfo, insuranceInfo: insuranceInfo, labTests: labTests, originalHL7: hl7Content, embeddedFiles: files };
-                    } catch (error) { return { success: false, error: error.message }; }
-                }
-
-                function generateResultHL7() {
-                    if (!uploadedOrder) return '';
-                    const patientInfo = uploadedOrder.patientInfo;
-                    const orderInfo = uploadedOrder.orderInfo;
-                    const labTests = uploadedOrder.labTests;
-                    const resultDateTime = generateESTDateTime();
-                    console.log('Generated datetime:', resultDateTime);
-                    const controlId = Math.floor(Math.random() * 900000000000000000000) + 100000000000000000000;
-                    const version = uploadedOrder.useV23 ? '2.3' : '2.3.1';
-                    let hl7Result = '';
-                    hl7Result += 'MSH|^~\\&|LightningStep|' + (orderInfo.sendingFacility || '73929332') + '|ClinicalLabs|' + (orderInfo.receivingFacility || 'LABLIS') + '|' + resultDateTime + '||ORU^R01|' + controlId + '|P|' + version + '|||NE|NE\r\n';
-                    const raceCode = patientInfo.race === 'White' ? '2106-3^White^CDCREC' : patientInfo.race === 'Black' ? '2054-5^Black^CDCREC' : patientInfo.race === 'Asian' ? '2028-9^Asian^CDCREC' : patientInfo.race === 'Native American' ? '1002-5^American Indian^CDCREC' : '2106-3^White^CDCREC';
-                    const ethnicityCode = Math.random() > 0.5 ? '2135-2^Hispanic or Latino' : '2186-5^Not Hispanic or Latino';
-                    const billType = uploadedOrder.insuranceInfo && Object.keys(uploadedOrder.insuranceInfo).length > 0 ? 'T' : 'P';
-                    hl7Result += 'PID|1|' + patientInfo.mrn + '|' + patientInfo.mrn + '||' + patientInfo.lastName + '^' + patientInfo.firstName + '^' + (patientInfo.middleName || '') + '||' + patientInfo.birthDate + '|' + patientInfo.gender + '||' + raceCode + '|' + (patientInfo.address1 && patientInfo.address1 !== 'Unknown' ? patientInfo.address1 : '12345 Fake Address Rd.') + '^^' + (patientInfo.city && patientInfo.city !== 'Unknown' ? patientInfo.city : 'Spring') + '^' + (patientInfo.state && patientInfo.state !== 'XX' ? patientInfo.state : 'TX') + '^' + (patientInfo.zip && patientInfo.zip !== '00000' ? patientInfo.zip : '77778') + '||' + (patientInfo.phoneHome && patientInfo.phoneHome !== '(000) 000-0000' ? patientInfo.phoneHome : '(832) 454-4545') + '|' + (patientInfo.phoneBusiness && patientInfo.phoneBusiness !== '(000) 000-0000' ? patientInfo.phoneBusiness : '(832) 454-4545') + '||||' + patientInfo.mrn + '^^^' + billType + '|' + (patientInfo.ssn && patientInfo.ssn !== 'N/A' ? patientInfo.ssn : '') + '|||' + ethnicityCode + '|\r\n';
-                    const visitInfo = uploadedOrder.visitInfo || {};
-                    const visitNumber = visitInfo.visitNumber || Math.floor(Math.random() * 999) + 1;
-                    hl7Result += 'PV1|1|' + (visitInfo.patientClass || 'O') + '|^^^&||||' + (orderInfo.physicianNPI || '1234567893') + '^' + (orderInfo.physicianLastName || 'Jaramillo') + '^' + (orderInfo.physicianFirstName || 'Francisco') + '|||||||||||||||' + visitNumber + '|||||||||||||||||||||||||' + resultDateTime + '|' + resultDateTime + '|\r\n';
-                    if (uploadedOrder.insuranceInfo && Object.keys(uploadedOrder.insuranceInfo).length > 0) {
-                        const insurance = uploadedOrder.insuranceInfo;
-                        hl7Result += 'GT1|1||' + patientInfo.lastName + '^' + patientInfo.firstName + '^||' + (patientInfo.address1 && patientInfo.address1 !== 'Unknown' ? patientInfo.address1 : '12345 Fake Address Rd.') + '^^' + (patientInfo.city && patientInfo.city !== 'Unknown' ? patientInfo.city : 'Spring') + '^' + (patientInfo.state && patientInfo.state !== 'XX' ? patientInfo.state : 'TX') + '^' + (patientInfo.zip && patientInfo.zip !== '00000' ? patientInfo.zip : '77778') + '|' + (patientInfo.phoneHome && patientInfo.phoneHome !== '(000) 000-0000' ? patientInfo.phoneHome : '(832) 454-4545') + '||' + patientInfo.birthDate + '|||01||||||||||||||||\r\n';
-                        hl7Result += 'IN1|1||' + (insurance.planId || '60254') + '|' + (insurance.companyName || 'Aetna') + '|^^^AK^|||' + (insurance.groupNumber || '6849878945') + '||||||||' + patientInfo.lastName + '^' + patientInfo.firstName + '^|01|' + patientInfo.birthDate + '|^^^AK^|||1|||||||||||||' + (insurance.policyNumber || '444444') + '|||||||||||T\r\n';
-                    }
-                    const accessionBase = Math.floor(Math.random() * 900000) + 100000;
-                    for (let i = 0; i < labTests.length; i++) {
-                        const test = labTests[i];
-                        const accessionNumber = resultDateTime.substring(0, 8) + '-' + accessionBase + '-' + String(i + 1).padStart(2, '0');
-                        const isFromOriginalOrder = uploadedOrder.originalHL7 && !uploadedOrder.orderInfo.orderNumber.startsWith('RL') && !uploadedOrder.orderInfo.orderNumber.startsWith('ND') && !uploadedOrder.orderInfo.orderNumber.startsWith('RD') && !uploadedOrder.orderInfo.orderNumber.startsWith('R3');
-                        const orderControl = isFromOriginalOrder ? 'RE' : 'NW';
-                        const orderNumberToUse = orderControl === 'RE' ? uploadedOrder.orderInfo.orderNumber : orderInfo.orderNumber;
-                        console.log('Order Control Logic:');
-                        console.log('- Has original HL7:', !!uploadedOrder.originalHL7);
-                        console.log('- Order number:', uploadedOrder.orderInfo.orderNumber);
-                        console.log('- Is from original order:', isFromOriginalOrder);
-                        console.log('- Order control:', orderControl);
-                        console.log('- Order number used:', orderNumberToUse);
-                        hl7Result += 'ORC|' + orderControl + '|' + orderNumberToUse + '|' + accessionNumber + '||CM||||' + resultDateTime + '||' + (orderInfo.physicianNPI || '1234567893') + '^' + (orderInfo.physicianLastName || 'Jaramillo') + '^' + (orderInfo.physicianFirstName || 'Francisco') + '^^^^^U|^^^&\r\n';
-                        hl7Result += 'OBR|' + (i + 1) + '|' + orderNumberToUse + '|' + accessionNumber + '|' + test.code + '^' + test.name + '|' + (test.priority || 'R') + '||' + resultDateTime + '|' + resultDateTime + '|||^^^|||||BLD&Blood^^Blood Collection Tube (BCT)^^R&Refrigerated|' + (orderInfo.physicianNPI || '1234567893') + '^' + (orderInfo.physicianLastName || 'Jaramillo') + '^' + (orderInfo.physicianFirstName || 'Francisco') + '||||||||F|||||||1^^^^^' + (test.priority || 'R') + '^NONFASTING||\r\n';
-                        for (let j = 0; j < test.results.length; j++) {
-                            const result = test.results[j];
-                            const dataType = (result.code === 'COLOR' || result.code === 'CLARITY') ? 'ST' : 'NM';
-                            hl7Result += 'OBX|' + (j + 1) + '|' + dataType + '|' + result.code + '^' + result.name + '^L|' + (j + 1) + '|' + result.value + '|' + result.unit + '|' + result.range + '|' + result.status + '|||F|||' + resultDateTime + '|LAB^Laboratory^L\r\n';
-                        }
-                        if (test.notes) { hl7Result += 'NTE|1|R|' + test.notes + '\r\n'; }
-                    }
-                    return hl7Result;
-                }
-
-                function handleFileUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const content = e.target.result;
-                        const result = parseHL7Order(content);
-                        if (result.success) {
-                            setUploadedOrder(result);
-                            setCurrentModule('loaded-info');
-                            setGeneratedResult('');
-                            const patientKey = result.patientInfo.firstName + '_' + result.patientInfo.lastName + '_' + result.patientInfo.mrn;
-                            const existingPatient = knownPatients.find(p => p.key === patientKey);
-                            if (!existingPatient) {
-                                const newKnownPatient = { key: patientKey, patientInfo: result.patientInfo, orderInfo: result.orderInfo, labTests: result.labTests, visitInfo: result.visitInfo, insuranceInfo: result.insuranceInfo, originalHL7: result.originalHL7, displayName: result.patientInfo.firstName + ' ' + result.patientInfo.lastName + ' (' + result.patientInfo.mrn + ')', addedDate: new Date().toISOString() };
-                                setKnownPatients(prev => [...prev, newKnownPatient]);
-                            }
-                            const fileCount = result.embeddedFiles ? result.embeddedFiles.length : 0;
-                            alert('✅ HL7 Order loaded successfully!' + (fileCount > 0 ? '\n📎 Found ' + fileCount + ' embedded file(s)!' : ''));
-                        } else { alert('❌ Error parsing HL7: ' + result.error); }
-                    };
-                    reader.readAsText(file);
-                }
-
-                function handleGenerateResult() {
-                    if (!uploadedOrder) return;
-                    const result = generateResultHL7();
-                    setGeneratedResult(result);
-                    alert('✅ Lightning Step compliant HL7 ORU^R01 result generated!');
-                }
-
-                function handleDownload() {
-                    if (!generatedResult || !uploadedOrder) return;
-                    const resultDateTime = generateESTDateTime();
-                    const mrn = uploadedOrder.patientInfo.mrn || 'UNKNOWN';
-                    let orderNumberForFilename;
-                    if (selectedPatient && selectedPatient.orderInfo && selectedPatient.orderInfo.orderNumber) {
-                        orderNumberForFilename = selectedPatient.orderInfo.orderNumber;
-                        console.log('Using original patient order number for filename:', orderNumberForFilename);
-                    } else {
-                        orderNumberForFilename = uploadedOrder.orderInfo.orderNumber || 'UNKNOWN';
-                        console.log('Using current order number for filename:', orderNumberForFilename);
-                    }
-                    const fileName = resultDateTime + '_' + mrn + '_' + orderNumberForFilename + '_ORU_R01.hl7';
-                    console.log('Generated filename:', fileName);
-                    const blob = new Blob([generatedResult], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }
-
-                function generateTestData(orderPrefix, version) {
-                    if (!selectedPatient) return;
-                    console.log('=== Starting generation for ' + orderPrefix + ' ===');
-                    const randomTests = generateRandomTests();
-                    const currentDateTime = generateESTDateTime();
-                    console.log('Generated currentDateTime:', currentDateTime);
-                    const randomOrderNumber = orderPrefix + Math.floor(Math.random() * 900000 + 100000);
-                    console.log('Generated order number:', randomOrderNumber);
-                    const physicianFirstNames = ['Francisco', 'Maria', 'Carlos', 'Ana', 'Diego', 'Sofia', 'Miguel', 'Isabella', 'Juan', 'Valentina'];
-                    const physicianLastNames = ['Jaramillo', 'Rodriguez', 'Martinez', 'Garcia', 'Lopez', 'Gonzalez', 'Perez', 'Sanchez', 'Ramirez', 'Torres'];
-                    const randomPhysicianFirst = physicianFirstNames[Math.floor(Math.random() * physicianFirstNames.length)];
-                    const randomPhysicianLast = physicianLastNames[Math.floor(Math.random() * physicianLastNames.length)];
-                    const randomNPI = '12345678' + Math.floor(Math.random() * 10);
-                    console.log('Generated random physician:', randomPhysicianFirst, randomPhysicianLast, 'NPI:', randomNPI);
-                    const resultData = { success: true, patientInfo: selectedPatient.patientInfo, orderInfo: { orderNumber: randomOrderNumber, sendingApp: 'LightningStep', sendingFacility: '73929332', receivingApp: 'ClinicalLabs', receivingFacility: 'LABLIS', orderDateTime: currentDateTime, controlId: 'CTRL' + Math.floor(Math.random() * 999999999), messageType: 'ORM^O01', processingId: 'P', hl7Version: version, physicianNPI: randomNPI, physicianFirstName: randomPhysicianFirst, physicianLastName: randomPhysicianLast }, visitInfo: selectedPatient.visitInfo || { patientClass: 'O' }, insuranceInfo: selectedPatient.insuranceInfo || {}, labTests: randomTests, useV23: version === '2.3' };
-                    setUploadedOrder(resultData);
-                    alert('✅ ' + orderPrefix + ' order information generated! Use "Generate HL7 Result" button to create the actual HL7.');
-                    console.log('=== Order information created - ready for manual HL7 generation ===');
-                }
-
-                function renderHeader() {
-                    return React.createElement('div', { className: 'header' },
-                        React.createElement('h1', null, 'HL7 Results Generator'),
-                        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem' } },
-                            React.createElement('p', null, 'Lightning Step - 6 Functions ORU^R01'),
-                            React.createElement('span', { className: 'compliance-badge' }, 'LS COMPLIANT'),
-                            React.createElement('span', { className: 'file-badge' }, 'PDF/IMG')
-                        ),
-                        React.createElement('div', { className: 'nav' },
-                            React.createElement('button', { className: 'btn-orange', onClick: function() { fileInputRef.current.click(); } }, 'Upload HL7 Order'),
-                            React.createElement('button', { className: uploadedOrder ? 'btn-indigo' : 'btn-gray', disabled: !uploadedOrder, onClick: function() { setCurrentModule('loaded-info'); } }, 'Loaded Order'),
-                            React.createElement('button', { className: extractedFiles.length > 0 ? 'btn-pink' : 'btn-gray', disabled: extractedFiles.length === 0, onClick: function() { setCurrentModule('files'); } }, '📎 Files (' + extractedFiles.length + ')'),
-                            React.createElement('button', { className: uploadedOrder ? 'btn-blue' : 'btn-gray', disabled: !uploadedOrder, onClick: function() { setCurrentModule('result-from-order'); } }, 'Result from Order'),
-                            React.createElement('button', { className: knownPatients.length > 0 ? 'btn-purple' : 'btn-gray', disabled: knownPatients.length === 0, onClick: function() { setCurrentModule('random-tests'); } }, 'Random Tests (' + knownPatients.length + ')'),
-                            React.createElement('button', { className: knownPatients.length > 0 ? 'btn-teal' : 'btn-gray', disabled: knownPatients.length === 0, onClick: function() { setCurrentModule('random-name-dob'); } }, 'Name+DOB Only (' + knownPatients.length + ')'),
-                            React.createElement('button', { className: knownPatients.length > 0 ? 'btn-emerald' : 'btn-gray', disabled: knownPatients.length === 0, onClick: function() { setCurrentModule('random-v231'); } }, 'Random v2.3.1 (' + knownPatients.length + ')'),
-                            React.createElement('button', { className: knownPatients.length > 0 ? 'btn-gray' : 'btn-gray', disabled: knownPatients.length === 0, onClick: function() { setCurrentModule('random-v23'); } }, 'Random v2.3 (' + knownPatients.length + ')'),
-                            React.createElement('button', { className: 'btn-gray', onClick: function() { setCurrentModule('home'); setUploadedOrder(null); setGeneratedResult(''); setSelectedPatient(null); setExtractedFiles([]); setPreviewFile(null); } }, 'New')
-                        )
-                    );
-                }
-
-                function renderFiles() {
-                    return React.createElement('div', null,
-                        React.createElement('h2', { className: 'mb-4' }, '📎 Embedded Files - ' + extractedFiles.length + ' found'),
-                        extractedFiles.length === 0 ? React.createElement('div', { className: 'info-card' }, React.createElement('p', { style: { textAlign: 'center', color: '#6b7280' } }, 'No embedded files found in the HL7 message.')) :
-                        React.createElement('div', null, extractedFiles.map(function(file, i) {
-                            return React.createElement('div', { key: i, className: 'file-card' },
-                                React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' } },
-                                    React.createElement('h4', null, (file.mime.startsWith('image/') ? '🖼️ ' : '📄 ') + file.label + ' #' + file.idx),
-                                    React.createElement('div', null,
-                                        React.createElement('button', { className: 'btn-blue', style: { marginRight: '0.5rem', padding: '0.5rem 1rem' }, onClick: function() { setPreviewFile(previewFile === i ? null : i); } }, previewFile === i ? 'Hide Preview' : 'Preview'),
-                                        React.createElement('button', { className: 'btn-green', style: { padding: '0.5rem 1rem' }, onClick: function() { downloadFile(file); } }, 'Download')
-                                    )
-                                ),
-                                React.createElement('p', { style: { fontSize: '0.875rem', color: '#6b7280' } }, 'Segment: OBX-' + file.segIdx + ' | Type: ' + file.type + ' | MIME: ' + file.mime + ' | Size: ~' + file.size + 'KB'),
-                                previewFile === i && React.createElement('div', { style: { marginTop: '1rem', background: 'white', padding: '1rem', borderRadius: '8px' } },
-                                    file.mime.startsWith('image/') ? React.createElement('img', { src: 'data:' + file.mime + ';base64,' + file.b64, style: { maxWidth: '100%', maxHeight: '400px', borderRadius: '4px' } }) :
-                                    file.mime === 'application/pdf' ? React.createElement('iframe', { src: 'data:application/pdf;base64,' + file.b64, style: { width: '100%', height: '400px', border: 'none', borderRadius: '4px' } }) :
-                                    React.createElement('p', { style: { padding: '2rem', textAlign: 'center', background: '#f3f4f6', borderRadius: '8px' } }, 'Preview not available. Click Download to save the file.')
-                                )
-                            );
-                        })),
-                        React.createElement('button', { className: 'btn-gray', style: { marginTop: '1rem' }, onClick: function() { setCurrentModule('loaded-info'); } }, '← Back to Loaded Order')
-                    );
-                }
-
-                function renderHome() {
-                    return React.createElement('div', { className: 'text-center' },
-                        React.createElement('h2', { className: 'mb-8' }, 'Lightning Step Compliant HL7 Generator'),
-                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
-                            React.createElement('h4', { style: { color: '#166534' } }, '✅ Lightning Step Compliance Features'),
-                            React.createElement('ul', { style: { textAlign: 'left', marginLeft: '2rem', marginTop: '1rem' } },
-                                React.createElement('li', null, '🏥 MSH segment with proper LightningStep format'),
-                                React.createElement('li', null, '👤 Complete PID with race/ethnicity coding (CDCREC)'),
-                                React.createElement('li', null, '🏥 Enhanced PV1 with physician information'),
-                                React.createElement('li', null, '💳 IN1/GT1 insurance and guarantor segments'),
-                                React.createElement('li', null, '🧪 Compliant OBR/OBX with specimen source'),
-                                React.createElement('li', null, '📝 Optional NTE notes segments'),
-                                React.createElement('li', null, '📎 NEW: PDF/JPG/PNG extraction from OBX segments')
-                            )
-                        ),
-                        React.createElement('p', { className: 'mb-4', style: { color: '#6b7280' } }, 'Upload an HL7 file to enable all modules')
-                    );
-                }
-
-                function renderPatientSelector(title, orderPrefix, version) {
-                    return React.createElement('div', null,
-                        React.createElement('h2', { className: 'mb-4' }, title),
-                        React.createElement('div', { className: 'info-card' },
-                            React.createElement('h4', null, '👥 Select Known Patient'),
-                            React.createElement('select', { value: selectedPatient ? selectedPatient.key : '', onChange: function(e) { const patient = knownPatients.find(function(p) { return p.key === e.target.value; }); setSelectedPatient(patient || null); } },
-                                React.createElement('option', { value: '' }, 'Select a patient...'),
-                                knownPatients.map(function(patient) { return React.createElement('option', { key: patient.key, value: patient.key }, patient.displayName); })
-                            ),
-                            selectedPatient && React.createElement('div', { style: { marginTop: '1rem', padding: '1rem', background: 'white', borderRadius: '8px' } },
-                                React.createElement('h5', null, 'Selected Patient:'),
-                                React.createElement('p', null, selectedPatient.patientInfo.firstName + ' ' + selectedPatient.patientInfo.lastName + ' (' + selectedPatient.patientInfo.mrn + ')')
-                            ),
-                            React.createElement('button', { className: selectedPatient ? 'btn-green' : 'btn-gray', style: { width: '100%', padding: '1rem', marginTop: '1rem' }, disabled: !selectedPatient, onClick: function() { generateTestData(orderPrefix, version); } }, 'Generate Order Information'),
-                            uploadedOrder && React.createElement('button', { className: 'btn-blue', style: { width: '100%', padding: '1rem', marginTop: '0.5rem' }, onClick: function() { console.log('=== Manual HL7 Generation Triggered ==='); const result = generateResultHL7(); console.log('Manual HL7 generated - Length:', result.length); setGeneratedResult(result); console.log('Manual HL7 result set - should update display'); alert('✅ HL7 result generated and updated!'); } }, '🔄 Generate HL7 Result')
-                        ),
-                        uploadedOrder && uploadedOrder.orderInfo && uploadedOrder.orderInfo.orderNumber && (uploadedOrder.orderInfo.orderNumber.startsWith('RL') || uploadedOrder.orderInfo.orderNumber.startsWith('ND') || uploadedOrder.orderInfo.orderNumber.startsWith('RD') || uploadedOrder.orderInfo.orderNumber.startsWith('R3')) &&
-                        React.createElement('div', { style: { marginTop: '2rem' } },
-                            React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
-                                React.createElement('h4', { style: { color: '#166534' } }, '✅ Generated Information'),
-                                React.createElement('div', { style: { background: '#dcfce7', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' } },
-                                    React.createElement('h5', { style: { color: '#166534', marginBottom: '0.5rem' } }, '📋 Generated Order Details'),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, '🆔 Order Number: '), uploadedOrder.orderInfo.orderNumber,
-                                        React.createElement('span', { style: { fontSize: '0.875rem', color: '#166534', marginLeft: '0.5rem', fontStyle: 'italic' } },
-                                            uploadedOrder.orderInfo.orderNumber.startsWith('RL') && '(Random Tests)',
-                                            uploadedOrder.orderInfo.orderNumber.startsWith('ND') && '(Name + DOB Only)',
-                                            uploadedOrder.orderInfo.orderNumber.startsWith('RD') && '(Random Demographics v2.3.1)',
-                                            uploadedOrder.orderInfo.orderNumber.startsWith('R3') && '(Random Demographics v2.3)'
-                                        )
-                                    ),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, '👨‍⚕️ Provider: '), 'Dr. ' + uploadedOrder.orderInfo.physicianFirstName + ' ' + uploadedOrder.orderInfo.physicianLastName + ' (NPI: ' + uploadedOrder.orderInfo.physicianNPI + ')'),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, '🧪 Tests Generated: '), uploadedOrder.labTests.length + ' laboratory test(s)'),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, '📅 Generated: '), new Date().toLocaleString())
-                                ),
-                                React.createElement('div', { style: { background: '#eff6ff', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' } },
-                                    React.createElement('h5', { style: { color: '#1e40af', marginBottom: '0.5rem' } }, '👤 Patient Information'),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, 'Name: '), uploadedOrder.patientInfo.firstName + ' ' + uploadedOrder.patientInfo.lastName),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, 'MRN: '), uploadedOrder.patientInfo.mrn),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, 'DOB: '), uploadedOrder.patientInfo.birthDate),
-                                    React.createElement('p', { style: { margin: '0.25rem 0' } }, React.createElement('strong', null, 'Gender: '), uploadedOrder.patientInfo.gender)
-                                ),
-                                React.createElement('div', { style: { background: '#fffbeb', padding: '1rem', borderRadius: '8px' } },
-                                    React.createElement('h5', { style: { color: '#92400e', marginBottom: '0.5rem' } }, '🧪 Generated Tests'),
-                                    React.createElement('ul', { style: { marginLeft: '1rem' } }, uploadedOrder.labTests.map(function(test, index) { return React.createElement('li', { key: index, style: { marginBottom: '0.25rem', fontSize: '0.875rem' } }, React.createElement('strong', null, test.code), ': ' + test.name + ' (' + test.results.length + ' result(s))'); }))
-                                )
-                            )
-                        )
-                    );
-                }
-
-                function renderUploadedOrder() {
-                    if (!uploadedOrder) return null;
-                    return React.createElement('div', null,
-                        React.createElement('h2', { className: 'mb-4' }, 'Loaded Information - Complete HL7 Details'),
-                        extractedFiles.length > 0 && React.createElement('div', { className: 'file-card', style: { cursor: 'pointer' }, onClick: function() { setCurrentModule('files'); } },
-                            React.createElement('h4', null, '📎 ' + extractedFiles.length + ' Embedded File(s) Found - Click to View/Download')
-                        ),
-                        React.createElement('div', { className: 'info-card', style: { background: '#eff6ff' } },
-                            React.createElement('h4', { style: { color: '#1e40af' } }, '👤 Patient Information (PID)'),
-                            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' } },
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Full Name: '), (uploadedOrder.patientInfo.firstName || 'Unknown') + ' ' + (uploadedOrder.patientInfo.middleName ? uploadedOrder.patientInfo.middleName + ' ' : '') + (uploadedOrder.patientInfo.lastName || 'Unknown')),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'MRN/Patient ID: '), uploadedOrder.patientInfo.mrn || 'Unknown'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Birth Date: '), uploadedOrder.patientInfo.birthDate || '19900101'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Gender: '), uploadedOrder.patientInfo.gender || 'U'),
-                                React.createElement('div', { style: { fontSize: '0.875rem', gridColumn: 'span 2' } }, React.createElement('strong', null, 'Complete Address: '), (uploadedOrder.patientInfo.address1 && uploadedOrder.patientInfo.address1 !== 'Unknown' ? (uploadedOrder.patientInfo.address1 || 'N/A') + ', ' + (uploadedOrder.patientInfo.city || 'N/A') + ', ' + (uploadedOrder.patientInfo.state || 'N/A') + ' ' + (uploadedOrder.patientInfo.zip || 'N/A') : 'Address information not available')),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Home Phone: '), uploadedOrder.patientInfo.phoneHome && uploadedOrder.patientInfo.phoneHome !== '(000) 000-0000' ? uploadedOrder.patientInfo.phoneHome : 'Not provided'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Business Phone: '), uploadedOrder.patientInfo.phoneBusiness && uploadedOrder.patientInfo.phoneBusiness !== '(000) 000-0000' ? uploadedOrder.patientInfo.phoneBusiness : 'Not provided'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Race/Ethnicity: '), uploadedOrder.patientInfo.race && uploadedOrder.patientInfo.race !== 'Unknown' ? uploadedOrder.patientInfo.race : 'Not specified'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'SSN: '), uploadedOrder.patientInfo.ssn || 'N/A')
-                            )
-                        ),
-                        React.createElement('div', { className: 'info-card', style: { background: '#f0fdf4' } },
-                            React.createElement('h4', { style: { color: '#166534' } }, '📨 Message Header (MSH)'),
-                            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' } },
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Message Type: '), uploadedOrder.orderInfo.messageType || 'ORM^O01'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'HL7 Version: '), uploadedOrder.orderInfo.hl7Version || '2.3.1'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Sending Application: '), uploadedOrder.orderInfo.sendingApp || 'N/A'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Sending Facility: '), uploadedOrder.orderInfo.sendingFacility || 'N/A'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Receiving Application: '), uploadedOrder.orderInfo.receivingApp || 'N/A'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Receiving Facility: '), uploadedOrder.orderInfo.receivingFacility || 'N/A'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Date/Time: '), uploadedOrder.orderInfo.orderDateTime || 'N/A'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Control ID: '), uploadedOrder.orderInfo.controlId || 'N/A')
-                            )
-                        ),
-                        React.createElement('div', { className: 'info-card', style: { background: '#fef3c7' } },
-                            React.createElement('h4', { style: { color: '#92400e' } }, '📋 Order Control (ORC)'),
-                            React.createElement('div', { style: { background: '#fef9c3', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' } },
-                                React.createElement('strong', null, '🆔 Order Number: ' + (uploadedOrder.orderInfo.orderNumber || 'N/A')),
-                                (uploadedOrder.orderInfo.orderNumber && (uploadedOrder.orderInfo.orderNumber.startsWith('RL') || uploadedOrder.orderInfo.orderNumber.startsWith('RD') || uploadedOrder.orderInfo.orderNumber.startsWith('R3') || uploadedOrder.orderInfo.orderNumber.startsWith('ND'))) &&
-                                React.createElement('div', { style: { fontSize: '0.875rem', color: '#92400e', marginTop: '0.5rem', fontStyle: 'italic' } },
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('RL') && '↳ Random Tests Order',
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('ND') && '↳ Name + DOB Only Order',
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('RD') && '↳ Random Demographics v2.3.1 Order',
-                                    uploadedOrder.orderInfo.orderNumber.startsWith('R3') && '↳ Random Demographics v2.3 Order'
-                                )
-                            )
-                        ),
-                        React.createElement('div', { className: 'info-card', style: { background: '#faf5ff' } },
-                            React.createElement('h4', { style: { color: '#6b21a8' } }, '👨‍⚕️ Ordering Physician Information'),
-                            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' } },
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'NPI Number: '), uploadedOrder.orderInfo.physicianNPI || 'N/A'),
-                                React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Full Name: '), 'Dr. ' + (uploadedOrder.orderInfo.physicianFirstName || 'Unknown') + ' ' + (uploadedOrder.orderInfo.physicianLastName || 'Physician'))
-                            )
-                        ),
-                        React.createElement('div', { style: { background: '#fffbeb', padding: '2rem', borderRadius: '12px', marginBottom: '2rem' } },
-                            React.createElement('h4', { style: { color: '#92400e', fontWeight: 600, marginBottom: '1rem' } }, '🧪 Laboratory Order Requests (OBR) - ' + uploadedOrder.labTests.length + ' test(s)'),
-                            uploadedOrder.labTests.map(function(test, index) {
-                                return React.createElement('div', { key: index, style: { background: 'white', padding: '1.5rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid #e5e7eb' } },
-                                    React.createElement('h5', { style: { color: '#92400e', marginBottom: '1rem', borderBottom: '2px solid #fed7aa', paddingBottom: '0.5rem' } }, '🧪 Test #' + test.sequence + ': ' + (test.name || 'Lab Test')),
-                                    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' } },
-                                        React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Test Code: '), test.code || 'N/A'),
-                                        React.createElement('div', { style: { fontSize: '0.875rem' } }, React.createElement('strong', null, 'Test Name: '), test.name || 'N/A')
-                                    ),
-                                    React.createElement('div', { style: { marginTop: '1rem', background: '#fef3c7', padding: '1rem', borderRadius: '6px' } },
-                                        React.createElement('strong', null, '📊 Expected Results (' + test.results.length + '):'),
-                                        React.createElement('ul', { style: { marginLeft: '1rem', marginTop: '0.5rem', fontSize: '0.875rem' } },
-                                            test.results.map(function(result, idx) {
-                                                return React.createElement('li', { key: idx, style: { listStyle: 'disc', marginBottom: '0.25rem', color: '#78350f' } },
-                                                    React.createElement('strong', null, result.name + ' (' + result.code + ')'),
-                                                    ' - Unit: ' + result.unit + ', Range: ' + result.range
-                                                );
-                                            })
-                                        )
-                                    )
-                                );
-                            })
-                        ),
-                        React.createElement('div', { className: 'text-center' },
-                            React.createElement('button', { className: 'btn-green', style: { padding: '1rem 2rem', fontSize: '1.125rem' }, onClick: handleGenerateResult }, 'Generate HL7 ORU^R01 Result')
-                        )
-                    );
-                }
-
-                function renderContent() {
-                    if (currentModule === 'files') { return renderFiles(); }
-                    if (currentModule === 'loaded-info' && uploadedOrder) { return renderUploadedOrder(); }
-                    else if (currentModule === 'result-from-order') {
-                        if (!uploadedOrder) {
-                            return React.createElement('div', { className: 'text-center' },
-                                React.createElement('h2', { className: 'mb-4' }, 'Result from Order'),
-                                React.createElement('div', { className: 'info-card' }, React.createElement('p', { style: { color: '#ef4444', textAlign: 'center' } }, '⚠️ No order has been uploaded yet. Please upload an HL7 order first.'))
-                            );
-                        }
-                        return React.createElement('div', null,
-                            React.createElement('h2', { className: 'mb-4' }, 'Result from Order'),
-                            React.createElement('div', { className: 'info-card' },
-                                React.createElement('h4', null, '🔄 Current Loaded Order'),
-                                React.createElement('p', null, React.createElement('strong', null, 'Patient: '), uploadedOrder.patientInfo.firstName + ' ' + uploadedOrder.patientInfo.lastName),
-                                React.createElement('button', { className: 'btn-green', style: { width: '100%', padding: '1rem' }, onClick: handleGenerateResult }, 'Generate Lightning Step Compliant Result')
-                            )
-                        );
-                    } else if (currentModule === 'random-tests') { return renderPatientSelector('Random Tests - Keep Original Demographics', 'RL'); }
-                    else if (currentModule === 'random-name-dob') { return renderPatientSelector('Name + DOB Only - Everything Else Random', 'ND'); }
-                    else if (currentModule === 'random-v231') { return renderPatientSelector('Random Demographics v2.3.1 - Name Only', 'RD', '2.3.1'); }
-                    else if (currentModule === 'random-v23') { return renderPatientSelector('Random Demographics v2.3 - Name Only', 'R3', '2.3'); }
-                    else { return renderHome(); }
-                }
-
-                function renderResults() {
-                    console.log('Rendering results section - generatedResult length:', generatedResult ? generatedResult.length : 0);
-                    return React.createElement('div', { className: 'results-section' },
-                        React.createElement('h2', { className: 'mb-4' }, 'Lightning Step Compliant HL7 ORU^R01 Result'),
-                        React.createElement('p', { className: 'mb-4' }, 'Generated laboratory results in Lightning Step compliant HL7 format'),
-                        generatedResult && React.createElement('button', { className: 'btn-indigo mb-4', style: { padding: '0.75rem 1.5rem' }, onClick: handleDownload }, 'Download HL7 File'),
-                        React.createElement('div', { className: 'result-display' }, generatedResult || 'Select a module and generate results to see the Lightning Step compliant HL7 format...')
-                    );
-                }
-
-                return React.createElement('div', { className: 'container' },
-                    React.createElement('div', { className: 'card' },
-                        renderHeader(),
-                        React.createElement('input', { ref: fileInputRef, type: 'file', accept: '.hl7,.txt', onChange: handleFileUpload, style: { display: 'none' } }),
-                        React.createElement('div', { className: 'content' }, renderContent()),
-                        renderResults()
-                    )
-                );
+    function genResultHL7(){
+        if(!uploadedOrder)return'';
+        var pi=uploadedOrder.patientInfo,oi=uploadedOrder.orderInfo,tests=uploadedOrder.labTests,dt=genEST(),cid=Math.floor(Math.random()*9e20)+1e20,ver=uploadedOrder.useV23?'2.3':'2.3.1';
+        var h='';
+        h+='MSH|^~\\&|LightningStep|'+(oi.sendingFacility||'73929332')+'|ClinicalLabs|'+(oi.receivingFacility||'LABLIS')+'|'+dt+'||ORU^R01|'+cid+'|P|'+ver+'|||NE|NE\r\n';
+        var rc=pi.race==='White'?'2106-3^White^CDCREC':pi.race==='Black'?'2054-5^Black^CDCREC':pi.race==='Asian'?'2028-9^Asian^CDCREC':'2106-3^White^CDCREC';
+        var ec=Math.random()>.5?'2135-2^Hispanic or Latino':'2186-5^Not Hispanic or Latino';
+        var bt=uploadedOrder.insuranceInfo&&Object.keys(uploadedOrder.insuranceInfo).length>0?'T':'P';
+        h+='PID|1|'+pi.mrn+'|'+pi.mrn+'||'+pi.lastName+'^'+pi.firstName+'^'+(pi.middleName||'')+'||'+pi.birthDate+'|'+pi.gender+'||'+rc+'|'+(pi.address1&&pi.address1!=='Unknown'?pi.address1:'12345 Fake Address Rd.')+'^^'+(pi.city&&pi.city!=='Unknown'?pi.city:'Spring')+'^'+(pi.state&&pi.state!=='XX'?pi.state:'TX')+'^'+(pi.zip&&pi.zip!=='00000'?pi.zip:'77778')+'||'+(pi.phoneHome&&pi.phoneHome!=='(000) 000-0000'?pi.phoneHome:'(832) 454-4545')+'|'+(pi.phoneBusiness&&pi.phoneBusiness!=='(000) 000-0000'?pi.phoneBusiness:'(832) 454-4545')+'||||'+pi.mrn+'^^^'+bt+'|'+(pi.ssn&&pi.ssn!=='N/A'?pi.ssn:'')+'|||'+ec+'|\r\n';
+        var vi=uploadedOrder.visitInfo||{},vn=vi.visitNumber||Math.floor(Math.random()*999)+1;
+        h+='PV1|1|'+(vi.patientClass||'O')+'|^^^&||||'+(oi.physicianNPI||'1234567893')+'^'+(oi.physicianLastName||'Jaramillo')+'^'+(oi.physicianFirstName||'Francisco')+'|||||||||||||||'+vn+'|||||||||||||||||||||||||'+dt+'|'+dt+'|\r\n';
+        if(uploadedOrder.insuranceInfo&&Object.keys(uploadedOrder.insuranceInfo).length>0){var ins=uploadedOrder.insuranceInfo;h+='GT1|1||'+pi.lastName+'^'+pi.firstName+'^||'+(pi.address1&&pi.address1!=='Unknown'?pi.address1:'12345 Fake Address Rd.')+'^^'+(pi.city&&pi.city!=='Unknown'?pi.city:'Spring')+'^'+(pi.state&&pi.state!=='XX'?pi.state:'TX')+'^'+(pi.zip&&pi.zip!=='00000'?pi.zip:'77778')+'|'+(pi.phoneHome&&pi.phoneHome!=='(000) 000-0000'?pi.phoneHome:'(832) 454-4545')+'||'+pi.birthDate+'|||01||||||||||||||||\r\n';h+='IN1|1||'+(ins.planId||'60254')+'|'+(ins.companyName||'Aetna')+'|^^^AK^|||'+(ins.groupNumber||'6849878945')+'||||||||'+pi.lastName+'^'+pi.firstName+'^|01|'+pi.birthDate+'|^^^AK^|||1|||||||||||||'+(ins.policyNumber||'444444')+'|||||||||||T\r\n'}
+        var accBase=Math.floor(Math.random()*900000)+100000;
+        for(var i=0;i<tests.length;i++){
+            var test=tests[i],acc=dt.substring(0,8)+'-'+accBase+'-'+String(i+1).padStart(2,'0');
+            var isOrig=uploadedOrder.originalHL7&&!oi.orderNumber.startsWith('RL')&&!oi.orderNumber.startsWith('ND')&&!oi.orderNumber.startsWith('RD')&&!oi.orderNumber.startsWith('R3');
+            var oc=isOrig?'RE':'NW',on=oc==='RE'?oi.orderNumber:oi.orderNumber;
+            h+='ORC|'+oc+'|'+on+'|'+acc+'||CM||||'+dt+'||'+(oi.physicianNPI||'1234567893')+'^'+(oi.physicianLastName||'Jaramillo')+'^'+(oi.physicianFirstName||'Francisco')+'^^^^^U|^^^&\r\n';
+            h+='OBR|'+(i+1)+'|'+on+'|'+acc+'|'+test.code+'^'+test.name+'|'+(test.priority||'R')+'||'+dt+'|'+dt+'|||^^^|||||BLD&Blood^^Blood Collection Tube (BCT)^^R&Refrigerated|'+(oi.physicianNPI||'1234567893')+'^'+(oi.physicianLastName||'Jaramillo')+'^'+(oi.physicianFirstName||'Francisco')+'||||||||F|||||||1^^^^^'+(test.priority||'R')+'^NONFASTING||\r\n';
+            for(var j=0;j<test.results.length;j++){
+                var res=test.results[j],dty=(res.code==='COLOR'||res.code==='CLARITY'||res.code==='PROT'||res.code==='GLUC'||res.code==='KET'||res.code==='BLOOD'||res.code==='LEUK'||res.code==='NIT'||res.code==='OXID')?'ST':'NM';
+                if(isNaN(parseFloat(res.value)))dty='ST';
+                h+='OBX|'+(j+1)+'|'+dty+'|'+res.code+'^'+res.name+'^L|'+(j+1)+'|'+res.value+'|'+res.unit+'|'+res.range+'|'+res.status+'|||F|||'+dt+'|LAB^Laboratory^L\r\n';
             }
-
-            const container = document.getElementById('root');
-            const root = createRoot(container);
-            root.render(React.createElement(HL7Generator));
+            if(test.notes)h+='NTE|1|R|'+test.notes+'\r\n';
         }
+        return h;
+    }
 
-        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); }
-        else { initApp(); }
-    </script>
+    function handleFileUpload(e){
+        var file=e.target.files[0];if(!file)return;
+        var reader=new FileReader();
+        reader.onload=function(ev){
+            var content=ev.target.result,result=parseHL7(content);
+            if(result.success){
+                setUploadedOrder(result);setCurrentModule('loaded-info');setGeneratedResult('');
+                var pk=result.patientInfo.firstName+'_'+result.patientInfo.lastName+'_'+result.patientInfo.mrn;
+                if(!knownPatients.find(function(p){return p.key===pk})){
+                    setKnownPatients(function(prev){return prev.concat([{key:pk,patientInfo:result.patientInfo,orderInfo:result.orderInfo,labTests:result.labTests,visitInfo:result.visitInfo,insuranceInfo:result.insuranceInfo,originalHL7:result.originalHL7,displayName:result.patientInfo.firstName+' '+result.patientInfo.lastName+' ('+result.patientInfo.mrn+')',addedDate:new Date().toISOString()}])});
+                }
+                var fc=result.embeddedFiles?result.embeddedFiles.length:0;
+                alert('HL7 Order loaded!'+(fc>0?'\nFound '+fc+' embedded file(s)!':''));
+            }else alert('Error parsing HL7: '+result.error);
+        };reader.readAsText(file);
+    }
+
+    function handleGenResult(){if(!uploadedOrder)return;var r=genResultHL7();setGeneratedResult(r);alert('Lightning Step compliant HL7 ORU^R01 result generated!')}
+
+    function handleDownload(){
+        if(!generatedResult||!uploadedOrder)return;
+        var dt=genEST(),mrn=uploadedOrder.patientInfo.mrn||'UNKNOWN',on=selectedPatient&&selectedPatient.orderInfo?selectedPatient.orderInfo.orderNumber:uploadedOrder.orderInfo.orderNumber||'UNKNOWN';
+        var fn=dt+'_'+mrn+'_'+on+'_ORU_R01.hl7';
+        var blob=new Blob([generatedResult],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+    }
+
+    function genTestData(prefix,ver){
+        if(!selectedPatient)return;
+        var tests=genRandomTests(),dt=genEST(),on=prefix+Math.floor(Math.random()*900000+100000);
+        var fNames=['Francisco','Maria','Carlos','Ana','Diego','Sofia','Miguel','Isabella','Juan','Valentina'];
+        var lNames=['Jaramillo','Rodriguez','Martinez','Garcia','Lopez','Gonzalez','Perez','Sanchez','Ramirez','Torres'];
+        var pf=fNames[Math.floor(Math.random()*fNames.length)],pl=lNames[Math.floor(Math.random()*lNames.length)],npi='12345678'+Math.floor(Math.random()*10);
+        setUploadedOrder({success:true,patientInfo:selectedPatient.patientInfo,orderInfo:{orderNumber:on,sendingApp:'LightningStep',sendingFacility:'73929332',receivingApp:'ClinicalLabs',receivingFacility:'LABLIS',orderDateTime:dt,controlId:'CTRL'+Math.floor(Math.random()*999999999),messageType:'ORM^O01',processingId:'P',hl7Version:ver||'2.3.1',physicianNPI:npi,physicianFirstName:pf,physicianLastName:pl},visitInfo:selectedPatient.visitInfo||{patientClass:'O'},insuranceInfo:selectedPatient.insuranceInfo||{},labTests:tests,useV23:ver==='2.3'});
+        alert(prefix+' order information generated! Use "Generate HL7 Result" button to create the actual HL7.');
+    }
+
+    function renderHeader(){
+        return ce('div',{className:'header'},
+            ce('h1',null,'HL7 Results Generator'),
+            ce('div',{style:{display:'flex',alignItems:'center',gap:'1rem'}},ce('p',null,'Lightning Step - 6 Functions ORU^R01'),ce('span',{className:'compliance-badge'},'LS COMPLIANT'),ce('span',{className:'file-badge'},'PDF/IMG')),
+            ce('div',{className:'nav'},
+                ce('button',{className:'btn-orange',onClick:function(){fileInputRef.current.click()}},'Upload HL7 Order'),
+                ce('button',{className:uploadedOrder?'btn-indigo':'btn-gray',disabled:!uploadedOrder,onClick:function(){setCurrentModule('loaded-info')}},'Loaded Order'),
+                ce('button',{className:extractedFiles.length>0?'btn-pink':'btn-gray',disabled:extractedFiles.length===0,onClick:function(){setCurrentModule('files')}},'Files ('+extractedFiles.length+')'),
+                ce('button',{className:uploadedOrder?'btn-blue':'btn-gray',disabled:!uploadedOrder,onClick:function(){setCurrentModule('result-from-order')}},'Result from Order'),
+                ce('button',{className:knownPatients.length>0?'btn-purple':'btn-gray',disabled:knownPatients.length===0,onClick:function(){setCurrentModule('random-tests')}},'Random Tests ('+knownPatients.length+')'),
+                ce('button',{className:knownPatients.length>0?'btn-teal':'btn-gray',disabled:knownPatients.length===0,onClick:function(){setCurrentModule('random-name-dob')}},'Name+DOB Only ('+knownPatients.length+')'),
+                ce('button',{className:knownPatients.length>0?'btn-emerald':'btn-gray',disabled:knownPatients.length===0,onClick:function(){setCurrentModule('random-v231')}},'Random v2.3.1 ('+knownPatients.length+')'),
+                ce('button',{className:knownPatients.length>0?'btn-gray':'btn-gray',disabled:knownPatients.length===0,onClick:function(){setCurrentModule('random-v23')}},'Random v2.3 ('+knownPatients.length+')'),
+                ce('button',{className:'btn-gray',onClick:function(){setCurrentModule('home');setUploadedOrder(null);setGeneratedResult('');setSelectedPatient(null);setExtractedFiles([]);setPreviewFile(null)}},'New')
+            )
+        )
+    }
+
+    function renderFiles(){
+        return ce('div',null,
+            ce('h2',{className:'mb-4'},'Embedded Files - '+extractedFiles.length+' found'),
+            extractedFiles.length===0?ce('div',{className:'info-card'},ce('p',{style:{textAlign:'center',color:'#6b7280'}},'No embedded files found.')):
+            ce('div',null,extractedFiles.map(function(file,i){
+                return ce('div',{key:i,className:'file-card'},
+                    ce('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'.5rem'}},
+                        ce('h4',null,(file.mime.startsWith('image/')?'':'')+ file.label+' #'+file.idx),
+                        ce('div',null,
+                            ce('button',{className:'btn-blue',style:{marginRight:'.5rem',padding:'.5rem 1rem'},onClick:function(){setPreviewFile(previewFile===i?null:i)}},previewFile===i?'Hide Preview':'Preview'),
+                            ce('button',{className:'btn-green',style:{padding:'.5rem 1rem'},onClick:function(){dlFile(file)}},'Download')
+                        )
+                    ),
+                    ce('p',{style:{fontSize:'.875rem',color:'#6b7280'}},'Segment: OBX-'+file.segIdx+' | Type: '+file.type+' | MIME: '+file.mime+' | Size: ~'+file.size+'KB'),
+                    previewFile===i&&ce('div',{style:{marginTop:'1rem',background:'#fff',padding:'1rem',borderRadius:'8px'}},
+                        file.mime.startsWith('image/')?ce('img',{src:'data:'+file.mime+';base64,'+file.b64,style:{maxWidth:'100%',maxHeight:'400px',borderRadius:'4px'}}):
+                        file.mime==='application/pdf'?ce('iframe',{src:'data:application/pdf;base64,'+file.b64,style:{width:'100%',height:'400px',border:'none',borderRadius:'4px'}}):
+                        ce('p',{style:{padding:'2rem',textAlign:'center',background:'#f3f4f6',borderRadius:'8px'}},'Preview not available. Click Download.')
+                    )
+                )
+            })),
+            ce('button',{className:'btn-gray',style:{marginTop:'1rem'},onClick:function(){setCurrentModule('loaded-info')}},'Back to Loaded Order')
+        )
+    }
+
+    function renderHome(){
+        return ce('div',{className:'text-center'},
+            ce('h2',{className:'mb-8'},'Lightning Step Compliant HL7 Generator'),
+            ce('div',{className:'info-card',style:{background:'#f0fdf4'}},
+                ce('h4',{style:{color:'#166534'}},'Lightning Step Compliance Features'),
+                ce('ul',{style:{textAlign:'left',marginLeft:'2rem',marginTop:'1rem'}},
+                    ce('li',null,'MSH segment with proper LightningStep format'),
+                    ce('li',null,'Complete PID with race/ethnicity coding (CDCREC)'),
+                    ce('li',null,'Enhanced PV1 with physician information'),
+                    ce('li',null,'IN1/GT1 insurance and guarantor segments'),
+                    ce('li',null,'Compliant OBR/OBX with specimen source'),
+                    ce('li',null,'Realistic test values from known test database (UDS, CBC, CMP, Lipid, TSH, UA, A1C, etc.)'),
+                    ce('li',null,'PDF/JPG/PNG extraction from OBX segments')
+                )
+            ),
+            ce('p',{className:'mb-4',style:{color:'#6b7280'}},'Upload an HL7 file to enable all modules')
+        )
+    }
+
+    function renderPatientSelector(title,prefix,ver){
+        return ce('div',null,
+            ce('h2',{className:'mb-4'},title),
+            ce('div',{className:'info-card'},
+                ce('h4',null,'Select Known Patient'),
+                ce('select',{value:selectedPatient?selectedPatient.key:'',onChange:function(e){var p=knownPatients.find(function(p){return p.key===e.target.value});setSelectedPatient(p||null)}},
+                    ce('option',{value:''},'Select a patient...'),
+                    knownPatients.map(function(p){return ce('option',{key:p.key,value:p.key},p.displayName)})
+                ),
+                selectedPatient&&ce('div',{style:{marginTop:'1rem',padding:'1rem',background:'#fff',borderRadius:'8px'}},ce('h5',null,'Selected: '),ce('p',null,selectedPatient.patientInfo.firstName+' '+selectedPatient.patientInfo.lastName+' ('+selectedPatient.patientInfo.mrn+')')),
+                ce('button',{className:selectedPatient?'btn-green':'btn-gray',style:{width:'100%',padding:'1rem',marginTop:'1rem'},disabled:!selectedPatient,onClick:function(){genTestData(prefix,ver)}},'Generate Order Information'),
+                uploadedOrder&&ce('button',{className:'btn-blue',style:{width:'100%',padding:'1rem',marginTop:'.5rem'},onClick:function(){var r=genResultHL7();setGeneratedResult(r);alert('HL7 result generated!')}},'Generate HL7 Result')
+            ),
+            uploadedOrder&&uploadedOrder.orderInfo&&uploadedOrder.orderInfo.orderNumber&&(uploadedOrder.orderInfo.orderNumber.startsWith('RL')||uploadedOrder.orderInfo.orderNumber.startsWith('ND')||uploadedOrder.orderInfo.orderNumber.startsWith('RD')||uploadedOrder.orderInfo.orderNumber.startsWith('R3'))&&
+            ce('div',{style:{marginTop:'2rem'}},
+                ce('div',{className:'info-card',style:{background:'#f0fdf4'}},
+                    ce('h4',{style:{color:'#166534'}},'Generated Information'),
+                    ce('div',{style:{background:'#dcfce7',padding:'1rem',borderRadius:'8px',marginBottom:'1rem'}},
+                        ce('h5',{style:{color:'#166534',marginBottom:'.5rem'}},'Generated Order Details'),
+                        ce('p',{style:{margin:'.25rem 0'}},ce('strong',null,'Order Number: '),uploadedOrder.orderInfo.orderNumber),
+                        ce('p',{style:{margin:'.25rem 0'}},ce('strong',null,'Provider: '),'Dr. '+uploadedOrder.orderInfo.physicianFirstName+' '+uploadedOrder.orderInfo.physicianLastName),
+                        ce('p',{style:{margin:'.25rem 0'}},ce('strong',null,'Tests: '),uploadedOrder.labTests.length+' test(s)')
+                    ),
+                    ce('div',{style:{background:'#fffbeb',padding:'1rem',borderRadius:'8px'}},
+                        ce('h5',{style:{color:'#92400e',marginBottom:'.5rem'}},'Generated Tests'),
+                        ce('ul',{style:{marginLeft:'1rem'}},uploadedOrder.labTests.map(function(t,i){return ce('li',{key:i,style:{marginBottom:'.25rem',fontSize:'.875rem'}},ce('strong',null,t.code),': '+t.name+' ('+t.results.length+' result(s))')}))
+                    )
+                )
+            )
+        )
+    }
+
+    function renderUploadedOrder(){
+        if(!uploadedOrder)return null;
+        var pi=uploadedOrder.patientInfo,oi=uploadedOrder.orderInfo;
+        return ce('div',null,
+            ce('h2',{className:'mb-4'},'Loaded Information - Complete HL7 Details'),
+            extractedFiles.length>0&&ce('div',{className:'file-card',style:{cursor:'pointer'},onClick:function(){setCurrentModule('files')}},ce('h4',null,extractedFiles.length+' Embedded File(s) Found - Click to View/Download')),
+            ce('div',{className:'info-card',style:{background:'#eff6ff'}},
+                ce('h4',{style:{color:'#1e40af'}},'Patient Information (PID)'),
+                ce('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'1rem'}},
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Full Name: '),pi.firstName+' '+(pi.middleName?pi.middleName+' ':'')+pi.lastName),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'MRN: '),pi.mrn),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Birth Date: '),pi.birthDate),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Gender: '),pi.gender),
+                    ce('div',{style:{fontSize:'.875rem',gridColumn:'span 2'}},ce('strong',null,'Address: '),pi.address1!=='Unknown'?pi.address1+', '+pi.city+', '+pi.state+' '+pi.zip:'Not available'),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Home Phone: '),pi.phoneHome!=='(000) 000-0000'?pi.phoneHome:'Not provided'),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'SSN: '),pi.ssn||'N/A')
+                )
+            ),
+            ce('div',{className:'info-card',style:{background:'#f0fdf4'}},
+                ce('h4',{style:{color:'#166534'}},'Message Header (MSH)'),
+                ce('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'1rem'}},
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Message Type: '),oi.messageType),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'HL7 Version: '),oi.hl7Version),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Sending App: '),oi.sendingApp),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Sending Facility: '),oi.sendingFacility),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Receiving App: '),oi.receivingApp),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Receiving Facility: '),oi.receivingFacility),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Date/Time: '),oi.orderDateTime),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Control ID: '),oi.controlId)
+                )
+            ),
+            ce('div',{className:'info-card',style:{background:'#fef3c7'}},
+                ce('h4',{style:{color:'#92400e'}},'Order Control (ORC)'),
+                ce('div',{style:{background:'#fef9c3',padding:'.75rem',borderRadius:'6px'}},ce('strong',null,'Order Number: '+(oi.orderNumber||'N/A')))
+            ),
+            ce('div',{className:'info-card',style:{background:'#faf5ff'}},
+                ce('h4',{style:{color:'#6b21a8'}},'Ordering Physician'),
+                ce('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'1rem'}},
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'NPI: '),oi.physicianNPI||'N/A'),
+                    ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Name: '),'Dr. '+(oi.physicianFirstName||'Unknown')+' '+(oi.physicianLastName||'Physician'))
+                )
+            ),
+            ce('div',{style:{background:'#fffbeb',padding:'2rem',borderRadius:'12px',marginBottom:'2rem'}},
+                ce('h4',{style:{color:'#92400e',fontWeight:600,marginBottom:'1rem'}},'Laboratory Order Requests (OBR) - '+uploadedOrder.labTests.length+' test(s)'),
+                uploadedOrder.labTests.map(function(test,index){
+                    return ce('div',{key:index,style:{background:'#fff',padding:'1.5rem',borderRadius:'8px',marginBottom:'1rem',border:'1px solid #e5e7eb'}},
+                        ce('h5',{style:{color:'#92400e',marginBottom:'1rem',borderBottom:'2px solid #fed7aa',paddingBottom:'.5rem'}},'Test #'+test.sequence+': '+(test.name||'Lab Test')),
+                        ce('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'1rem',marginBottom:'1rem'}},
+                            ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Test Code: '),test.code),
+                            ce('div',{style:{fontSize:'.875rem'}},ce('strong',null,'Test Name: '),test.name)
+                        ),
+                        ce('div',{style:{marginTop:'1rem',background:'#fef3c7',padding:'1rem',borderRadius:'6px'}},
+                            ce('strong',null,'Results ('+test.results.length+'):'),
+                            ce('table',{style:{width:'100%',marginTop:'.5rem',fontSize:'.875rem',borderCollapse:'collapse'}},
+                                ce('thead',null,ce('tr',{style:{borderBottom:'1px solid #d97706'}},
+                                    ce('th',{style:{textAlign:'left',padding:'.25rem .5rem'}},'Code'),
+                                    ce('th',{style:{textAlign:'left',padding:'.25rem .5rem'}},'Name'),
+                                    ce('th',{style:{textAlign:'right',padding:'.25rem .5rem'}},'Value'),
+                                    ce('th',{style:{textAlign:'left',padding:'.25rem .5rem'}},'Unit'),
+                                    ce('th',{style:{textAlign:'left',padding:'.25rem .5rem'}},'Range'),
+                                    ce('th',{style:{textAlign:'center',padding:'.25rem .5rem'}},'Flag')
+                                )),
+                                ce('tbody',null,test.results.map(function(r,idx){
+                                    var flagColor=r.status==='N'?'#166534':r.status==='A'||r.status==='H'||r.status==='L'?'#dc2626':'#92400e';
+                                    return ce('tr',{key:idx,style:{borderBottom:'1px solid #fde68a'}},
+                                        ce('td',{style:{padding:'.25rem .5rem',fontWeight:600}},r.code),
+                                        ce('td',{style:{padding:'.25rem .5rem'}},r.name),
+                                        ce('td',{style:{padding:'.25rem .5rem',textAlign:'right',fontWeight:600,color:flagColor}},r.value),
+                                        ce('td',{style:{padding:'.25rem .5rem',color:'#78350f'}},r.unit),
+                                        ce('td',{style:{padding:'.25rem .5rem',color:'#78350f'}},r.range),
+                                        ce('td',{style:{padding:'.25rem .5rem',textAlign:'center',fontWeight:700,color:flagColor}},r.status==='N'?'N':r.status)
+                                    )
+                                }))
+                            )
+                        )
+                    )
+                })
+            ),
+            ce('div',{className:'text-center'},ce('button',{className:'btn-green',style:{padding:'1rem 2rem',fontSize:'1.125rem'},onClick:handleGenResult},'Generate HL7 ORU^R01 Result'))
+        )
+    }
+
+    function renderContent(){
+        if(currentModule==='files')return renderFiles();
+        if(currentModule==='loaded-info'&&uploadedOrder)return renderUploadedOrder();
+        if(currentModule==='result-from-order'){
+            if(!uploadedOrder)return ce('div',{className:'text-center'},ce('h2',{className:'mb-4'},'Result from Order'),ce('div',{className:'info-card'},ce('p',{style:{color:'#ef4444',textAlign:'center'}},'No order uploaded yet.')));
+            return ce('div',null,ce('h2',{className:'mb-4'},'Result from Order'),ce('div',{className:'info-card'},
+                ce('h4',null,'Current Loaded Order'),
+                ce('p',null,ce('strong',null,'Patient: '),uploadedOrder.patientInfo.firstName+' '+uploadedOrder.patientInfo.lastName),
+                ce('p',{style:{marginTop:'.5rem'}},ce('strong',null,'Tests: '),uploadedOrder.labTests.map(function(t){return t.name}).join(', ')),
+                ce('button',{className:'btn-green',style:{width:'100%',padding:'1rem',marginTop:'1rem'},onClick:handleGenResult},'Generate Lightning Step Compliant Result')
+            ));
+        }
+        if(currentModule==='random-tests')return renderPatientSelector('Random Tests - Keep Original Demographics','RL');
+        if(currentModule==='random-name-dob')return renderPatientSelector('Name + DOB Only','ND');
+        if(currentModule==='random-v231')return renderPatientSelector('Random Demographics v2.3.1','RD','2.3.1');
+        if(currentModule==='random-v23')return renderPatientSelector('Random Demographics v2.3','R3','2.3');
+        return renderHome();
+    }
+
+    function renderResults(){
+        return ce('div',{className:'results-section'},
+            ce('h2',{className:'mb-4'},'Lightning Step Compliant HL7 ORU^R01 Result'),
+            ce('p',{className:'mb-4'},'Generated laboratory results in Lightning Step compliant HL7 format'),
+            generatedResult&&ce('button',{className:'btn-indigo mb-4',style:{padding:'.75rem 1.5rem'},onClick:handleDownload},'Download HL7 File'),
+            ce('div',{className:'result-display'},generatedResult||'Select a module and generate results to see the Lightning Step compliant HL7 format...')
+        )
+    }
+
+    return ce('div',{className:'container'},
+        ce('div',{className:'card'},
+            renderHeader(),
+            ce('input',{ref:fileInputRef,type:'file',accept:'.hl7,.txt',onChange:handleFileUpload,style:{display:'none'}}),
+            ce('div',{className:'content'},renderContent()),
+            renderResults()
+        )
+    )
+}
+
+var container=document.getElementById('root');createRoot(container).render(ce(HL7Generator));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initApp);else initApp();
+</script>
 </body>
 </html>
